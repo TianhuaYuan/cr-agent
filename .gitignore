@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# Virtual env
+backend/.venv/
+.venv/
+
+# Env files (secrets)
+.env
+.env.dev
+.env.test
+.env.prod
+backend/.env
+backend/.env.*
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# DB
+*.db
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+
+# 生成产物（评测 / 日志 / 分析）
+eval_report.*
+eval_run.log
+token_subset.*
+
+# 工作流工具缓存
+.workbuddy/
+
+# Python build artifacts
+*.egg
+*.whl
+dist/
+build/
+
+# 开发文档 / 计划（非项目源码）
+PROJECT_RULES.md
+tasks/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,29 @@
+[project]
+name = "cr-agent"
+version = "0.1.0"
+description = "多Agent代码审查协作平台 — Supervisor-Worker 架构"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard]==0.138.2",
+    "sqlalchemy[asyncio]==2.0.51",
+    "aiosqlite==0.20.0",
+    "pydantic[email]==2.13.4",
+    "pydantic-settings==2.14.2",
+    "langgraph==1.2.7",
+    "langchain-core==1.4.8",
+    "openai==2.44.0",
+    "httpx==0.28.1",
+    "python-dotenv==1.2.2",
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.3",
+]
+
+# pytest 配置迁到仓库根目录 pytest.ini（pytest-asyncio 在 pyproject 里偶发读不到 asyncio_mode）
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

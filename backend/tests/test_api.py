@@ -129,3 +129,77 @@ class TestReviewAPI:
             "language": "ruby",
         })
         assert resp.status_code == 422
+
+
+def _parse_sse(text: str) -> list[dict]:
+    """把 SSE 响应文本解析成 [{event, data}, ...] 列表。"""
+    events = []
+    current_event = "message"
+    current_data = []
+    for line in text.splitlines():
+        if line == "":
+            if current_data:
+                events.append({"event": current_event, "data": "\n".join(current_data)})
+                current_event = "message"
+                current_data = []
+        elif line.startswith("event:"):
+            current_event = line[len("event:"):].strip()
+        elif line.startswith("data:"):
+            current_data.append(line[len("data:"):].strip())
+    if current_data:
+        events.append({"event": current_event, "data": "\n".join(current_data)})
+    return events
+
+
+class TestStreamReviewAPI:
+    """POST /api/v1/reviews/stream — SSE 流式审查。"""
+
+    async def test_stream_content_type(self, api_client):
+        """流式 endpoint 返回 text/event-stream。"""
+        async with api_client.stream(
+            "POST", "/api/v1/reviews/stream",
+            json={"code": "x = 1", "language": "python"},
+        ) as resp:
+            assert resp.status_code == 200
+            ct = resp.headers.get("content-type", "")
+            assert "text/event-stream" in ct
+
+    async def test_stream_has_complete_event(self, api_client):
+        """流末尾有 complete 事件,data 是 JSON 含 review_id 和 report。"""
+        async with api_client.stream(
+            "POST", "/api/v1/reviews/stream",
+            json={"code": "api_key = 'sk-xxx'\nx = 1", "language": "python"},
+        ) as resp:
+            body = await resp.aread()
+
+        events = _parse_sse(body.decode("utf-8"))
+        complete_events = [e for e in events if e["event"] == "complete"]
+        assert len(complete_events) == 1
+        data = json.loads(complete_events[0]["data"])
+        assert "review_id" in data
+        assert "report" in data
+        assert len(data["report"]) > 0
+
+    async def test_stream_has_node_events(self, api_client):
+        """流中有 node_start 和 node_end 事件,且 start 早于 end。"""
+        async with api_client.stream(
+            "POST", "/api/v1/reviews/stream",
+            json={"code": "x = 1", "language": "python"},
+        ) as resp:
+            body = await resp.aread()
+
+        events = _parse_sse(body.decode("utf-8"))
+        node_starts = [e for e in events if e["event"] == "node_start"]
+        node_ends = [e for e in events if e["event"] == "node_end"]
+        assert len(node_starts) > 0, "expected at least one node_start"
+        assert len(node_ends) > 0, "expected at least one node_end"
+        assert len(node_starts) == len(node_ends), \
+            f"node_start ({len(node_starts)}) != node_end ({len(node_ends)})"
+
+    async def test_stream_validation_empty_code(self, api_client):
+        """流式 endpoint 空代码 → 422。"""
+        async with api_client.stream(
+            "POST", "/api/v1/reviews/stream",
+            json={"code": "", "language": "python"},
+        ) as resp:
+            assert resp.status_code == 422

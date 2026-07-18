@@ -16,10 +16,13 @@ Task 8.4: MCP Server 挂载到 /mcp 路径，支持 Streamable HTTP 传输。
 import json
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from backend.api.auth import router as auth_router
+from backend.api.evaluation import router as evaluation_router
 from backend.api.reviews import router as reviews_router
 from backend.api.webhooks import router as webhooks_router
 from backend.core.config import settings, validate_required_settings
@@ -126,12 +129,21 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(reviews_router, prefix="/api/v1")
+    # 评测 API（C 功能后端，Task 3）
+    app.include_router(evaluation_router, prefix="/api/v1")
     # JWT 签发端点（Task：API/MCP 鉴权）
     app.include_router(auth_router, prefix="/api/v1")
     # GitHub Webhook 端点（Task 9.3）
     app.include_router(webhooks_router, prefix="/api/v1")
-    # MCP Gateway：挂载带 Bearer 鉴权的 FastMCP Starlette app 到 /mcp 路径
+    # MCP Gateway:挂载带 Bearer 鉴权的 FastMCP Starlette app 到 /mcp 路径
     app.mount("/mcp", _mcp_auth_app)
+
+    # 静态前端:托管 backend/static/ 下的测试用单文件页面(Playground)。
+    # 必须放在所有 API router include 之后——mount("/") 会兜底所有未匹配路径,
+    # 若先挂会抢占 /api/v1/... 和 /mcp/...。这里用 html=True 让 / 自动返回 index.html。
+    static_dir = Path(__file__).resolve().parent / "static"
+    if static_dir.is_dir():
+        app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
     return app
 
 

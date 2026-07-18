@@ -4,10 +4,60 @@
   不碰 ``backend.core.database`` 的模块级引擎（那是运行时用的文件库）。
 - ``mock_llm``：把 ``get_chat_client`` 替换成假客户端，Worker/Supervisor 测试免真实 API key。
 """
+import sys
 from types import SimpleNamespace
 
 import pytest
 import pytest_asyncio
+
+
+def _install_fake_fastmcp():
+    """把 fastmcp 伪造成假模块，绕过环境缺失。
+
+    沙箱环境装不了 fastmcp，但 backend/main.py 是模块级 import（from backend.mcp.server import mcp），
+    只要 import main.py 就会触发 fastmcp import 失败。这里在 sys.modules 里提前注册一个假的
+    fastmcp 模块，提供 FastMCP 类的最小实现（构造 + http_app + tool 装饰器）。
+    """
+    if "fastmcp" in sys.modules:
+        return
+
+    from types import SimpleNamespace as _SN
+
+    class _FakeFastMCP:
+        def __init__(self, name: str = "fake"):
+            self.name = name
+            self._tools = {}
+            self._resources = {}
+
+        def tool(self):
+            def decorator(fn):
+                self._tools[fn.__name__] = fn
+                return fn
+            return decorator
+
+        def resource(self, uri: str):
+            def decorator(fn):
+                self._resources[uri] = fn
+                return fn
+            return decorator
+
+        def http_app(self, **kwargs):
+            from starlette.applications import Starlette
+            from starlette.responses import JSONResponse
+            from starlette.routing import Route
+
+            async def _sse(request):
+                return JSONResponse({"fake": True})
+
+            return Starlette(routes=[Route("/sse", _sse)])
+
+    fake_module = _SN(FastMCP=_FakeFastMCP)
+    sys.modules["fastmcp"] = fake_module
+    sys.modules["fastmcp.server"] = fake_module
+    sys.modules["fastmcp.tools"] = fake_module
+
+
+_install_fake_fastmcp()
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 

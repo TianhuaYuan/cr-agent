@@ -14,17 +14,10 @@ import os
 import sys
 from pathlib import Path
 
+from backend.core.languages import EXT_TO_LANGUAGE
 from backend.integrations import github as github_pkg
 from backend.integrations.github import GitHubClient  # 仅类型注解
 from backend.services.supervisor.graph import build_supervisor_graph
-
-_EXT_MAP = {
-    ".py": "python",
-    ".js": "javascript",
-    ".ts": "typescript",
-    ".go": "go",
-    ".java": "java",
-}
 
 # 拒绝读取的密钥/敏感文件名（避免把 .env / 私钥 / 证书等送进 LLM prompt 造成泄露）
 _SECRET_FILENAMES = {
@@ -58,7 +51,7 @@ def _resolve_review_file(file: str) -> Path:
 
 def _detect_language(file_path: str) -> str:
     """从文件扩展名推断语言。"""
-    return _EXT_MAP.get(Path(file_path).suffix.lower(), "python")
+    return EXT_TO_LANGUAGE.get(Path(file_path).suffix.lower(), "python")
 
 
 def cmd_review(file: str, language: str | None = None) -> str:

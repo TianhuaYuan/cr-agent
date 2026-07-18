@@ -21,10 +21,7 @@ from backend.core.database import AsyncSessionLocal
 from backend.models.review import Review
 from backend.services.supervisor.graph import build_supervisor_graph
 from backend.services.supervisor.decompose import decompose_node
-from backend.services.workers.security import SecurityWorker
-from backend.services.workers.quality import QualityWorker
-from backend.services.workers.performance import PerformanceWorker
-from backend.services.workers.structure import StructureWorker
+from backend.services.workers.registry import WORKERS as _WORKERS
 from backend.services.aggregator.merge import aggregate_findings
 from backend.services.aggregator.report import generate_report
 
@@ -34,13 +31,7 @@ logger = logging.getLogger(__name__)
 
 mcp = FastMCP("cr-agent")
 
-# Worker 实例映射（复用 W1 模块级单例模式）
-_WORKERS = {
-    "security": SecurityWorker(),
-    "quality": QualityWorker(),
-    "performance": PerformanceWorker(),
-    "structure": StructureWorker(),
-}
+# Worker 实例映射（复用 registry 单一来源）
 
 
 # ── Tool 1: ping（健康检查）──────────────────────────────────

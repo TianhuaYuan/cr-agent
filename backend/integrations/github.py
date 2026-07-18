@@ -13,17 +13,10 @@ GitHubClient：拉取 PR diff 并解析为可审查代码。
 
 import re
 
+from backend.core.languages import EXT_TO_LANGUAGE
+
 _PATCH_URL_TMPL = "https://patch-diff.githubusercontent.com/raw/{owner}/{repo}/pull/{number}.patch"
 _PR_URL_RE = re.compile(r"https?://github\.com/([^/]+)/([^/]+)/pull/(\d+)")
-
-# 扩展名 → 语言（供 PR patch 语言推断）
-_EXT_MAP = {
-    ".py": "python",
-    ".js": "javascript",
-    ".ts": "typescript",
-    ".go": "go",
-    ".java": "java",
-}
 
 
 class GitHubClient:
@@ -138,7 +131,7 @@ class GitHubClient:
             if line.startswith("diff --git"):
                 m = re.search(r"\.(\w+)$", line)
                 if m:
-                    lang = _EXT_MAP.get("." + m.group(1).lower())
+                    lang = EXT_TO_LANGUAGE.get("." + m.group(1).lower())
                     if lang:
                         counts[lang] = counts.get(lang, 0) + 1
         if not counts:

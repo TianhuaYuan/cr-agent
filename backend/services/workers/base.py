@@ -47,9 +47,9 @@ class BaseWorker(ABC):
     role: str = ""
     system_prompt: str = ""
     # Phase 5: LLM 调用超时阈值（秒）。超时 → 降级 info finding，不抛、不阻塞其他 Worker。
-    # 120s 给代码分析足够时间（实测 mimo-v2.5 单次 ~25-30s，并发更慢）。
-    # 测试时可覆写为极小值验证超时路径。
-    timeout: float = 120.0
+    # 单一来源 config.LLM_TIMEOUT（默认 120s，给代码分析足够时间；实测单次 ~25-30s，并发更慢）。
+    # 测试时可覆写为极小值验证超时路径（如 worker.timeout = 0.01）。
+    timeout: float = settings.LLM_TIMEOUT
 
     def __init__(self):
         # ABC 无 @abstractmethod 时不自动阻止实例化，手动守卫。
@@ -124,7 +124,7 @@ class BaseWorker(ABC):
             ],
             temperature=0.3,
             max_tokens=4096,
-            # 让 worker 的 timeout 成为权威超时，覆盖客户端默认 _CHAT_TIMEOUT(60s)，
+            # 让 worker 的 timeout 成为权威超时，覆盖客户端默认（同读 config.LLM_TIMEOUT），
             # 否则客户端会先抛 APITimeoutError，使上方 asyncio.TimeoutError 分支成死代码。
             timeout=self.timeout,
         )

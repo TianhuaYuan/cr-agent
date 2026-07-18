@@ -11,9 +11,8 @@ from .config import settings
 
 logger = logging.getLogger(__name__)
 
-# 单次 LLM 调用超时（秒）：网络上游必须设超时，防无限挂起
-_CHAT_TIMEOUT = 60.0
-
+# 单次 LLM 调用超时（秒）：单一来源 config.LLM_TIMEOUT（默认 120）。
+# 客户端默认即与 Worker 权威超时一致，避免两层超时语义打架。
 _chat_client: AsyncOpenAI | None = None
 
 
@@ -24,7 +23,7 @@ def get_chat_client() -> AsyncOpenAI:
         _chat_client = AsyncOpenAI(
             api_key=settings.CHAT_API_KEY,
             base_url=settings.CHAT_BASE_URL,
-            timeout=_CHAT_TIMEOUT,
+            timeout=settings.LLM_TIMEOUT,
         )
     return _chat_client
 

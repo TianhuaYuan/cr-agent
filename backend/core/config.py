@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     CHAT_BASE_URL: str = "https://api.openai.com/v1"
     CHAT_MODEL: str = "gpt-4o-mini"
 
+    # ── LLM 调用超时（秒）──
+    # 单一来源：客户端（llm.py）与 Worker（base.py）都读它，消除散落的 60/120 双常量。
+    # 默认 120s：给代码分析足够时间（实测单次 ~25-30s，并发更慢）；
+    # Worker 每次调用会把它作为 asyncio.wait_for 的权威超时传下去。
+    LLM_TIMEOUT: float = 120.0
+
     # ── 数据库（开发默认本地 SQLite async）──
     DATABASE_URL: str = "sqlite+aiosqlite:///./cr_agent.db"
 

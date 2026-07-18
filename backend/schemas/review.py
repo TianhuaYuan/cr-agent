@@ -20,10 +20,7 @@ class ReviewResponse(BaseModel):
     status: str
     language: str | None = None
     code_length: int | None = None
-    task_count: int | None = None
     report: str | None = None
-    findings: list | None = None
-    errors: list | None = None
     created_at: datetime | None = None
     completed_at: datetime | None = None
 

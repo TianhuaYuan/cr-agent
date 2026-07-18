@@ -18,20 +18,9 @@ from backend.services.aggregator.merge import aggregate_findings
 from backend.services.aggregator.report import generate_report
 from backend.services.supervisor.decompose import decompose_node
 from backend.services.supervisor.state import SupervisorState
-from backend.services.workers.quality import QualityWorker
-from backend.services.workers.security import SecurityWorker
-from backend.services.workers.performance import PerformanceWorker
-from backend.services.workers.structure import StructureWorker
+from backend.services.workers.registry import WORKERS as _WORKERS
 
 logger = logging.getLogger(__name__)
-
-# role → Worker 实例映射。模块级单例：Worker 无状态，复用即可。
-_WORKERS = {
-    "quality": QualityWorker(),
-    "security": SecurityWorker(),
-    "performance": PerformanceWorker(),
-    "structure": StructureWorker(),
-}
 
 # 降级 finding 的关键词（severity=info + description 含这些词 → 视为降级/异常）
 _DEGRADED_KEYWORDS = ("异常", "超时", "解析失败", "timeout", "error", "降级")

@@ -28,3 +28,6 @@ class SupervisorState(TypedDict):
     # 普通list会被后写者覆盖（LangGraph 节点返回的 dict 做 state 合并时同 key 覆盖），
     # add reducer 保证累加不丢。
     errors: Annotated[list, operator.add]
+    # Task 16.2: per-request 多模型覆盖，key=角色名，value=模型名。
+    # None 表示不覆盖（走 settings 默认值），由各 LLM 调用点自行处理。
+    model_overrides: Optional[dict[str, str]]

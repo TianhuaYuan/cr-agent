@@ -40,9 +40,10 @@ async def with_retry(
     last_error: Exception | None = None
     for attempt in range(max_retries + 1):
         try:
-            if asyncio.iscoroutinefunction(fn):
-                return await fn(*args, **kwargs)
-            return fn(*args, **kwargs)  # 同步 callable：直接调用
+            result = fn(*args, **kwargs)
+            if asyncio.iscoroutine(result):
+                result = await result
+            return result
         except NON_RETRYABLE:
             raise  # 编程错误不重试，直接抛
         except Exception as e:

@@ -130,6 +130,26 @@ class TestReviewAPI:
         })
         assert resp.status_code == 422
 
+    async def test_create_review_with_model_overrides(self, api_client):
+        """POST + model_overrides → 200（不回归）。"""
+        resp = await api_client.post("/api/v1/reviews", json={
+            "code": "x = 1",
+            "language": "python",
+            "model_overrides": {"decompose": "gpt-4o", "judge": "claude-sonnet"},
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "completed"
+
+    async def test_create_review_model_overrides_rejects_invalid_key(self, api_client):
+        """POST + model_overrides 无效 key → 422。"""
+        resp = await api_client.post("/api/v1/reviews", json={
+            "code": "x = 1",
+            "language": "python",
+            "model_overrides": {"unknown_role": "gpt-4o"},
+        })
+        assert resp.status_code == 422
+
 
 def _parse_sse(text: str) -> list[dict]:
     """把 SSE 响应文本解析成 [{event, data}, ...] 列表。"""
@@ -203,3 +223,20 @@ class TestStreamReviewAPI:
             json={"code": "", "language": "python"},
         ) as resp:
             assert resp.status_code == 422
+
+    async def test_stream_with_model_overrides(self, api_client):
+        """SSE 流式 + model_overrides → 200 + complete 事件。"""
+        async with api_client.stream(
+            "POST", "/api/v1/reviews/stream",
+            json={
+                "code": "x = 1",
+                "language": "python",
+                "model_overrides": {"decompose": "deepseek-chat", "worker.quality": "gpt-4o"},
+            },
+        ) as resp:
+            assert resp.status_code == 200
+            body = await resp.aread()
+
+        events = _parse_sse(body.decode("utf-8"))
+        complete = [e for e in events if e["event"] == "complete"]
+        assert len(complete) == 1

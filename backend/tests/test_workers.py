@@ -475,3 +475,36 @@ class TestWorkerLLMTracing:
         # 不抛异常即可
         await worker._call_llm("prompt")
         assert tracer.spans[0].ended is True
+
+
+# ── _resolve_model（Task 16.2 多模型）───────────────────────
+
+class TestResolveModel:
+    """_resolve_model & review(model=) 多模型支持。"""
+
+    def test_resolve_model_default(self, monkeypatch):
+        """未传 model 时，_resolve_model 返回 settings 中对应 role 的 model。"""
+        monkeypatch.setattr(
+            "backend.services.workers.base.settings.WORKER_QUALITY_MODEL", "custom-model"
+        )
+        worker = QualityWorker()
+        assert worker._resolve_model() == "custom-model"
+
+    def test_resolve_model_explicit(self):
+        """传了 model 时，_resolve_model 返回传入值（优先于 settings）。"""
+        worker = QualityWorker()
+        assert worker._resolve_model("gpt-4o") == "gpt-4o"
+
+    async def test_review_accepts_model_param(self, monkeypatch):
+        """review(model=...) 传 model 时，_call_llm 用该 model 调用 LLM。"""
+        client = _make_fake_client('[]')
+        monkeypatch.setattr("backend.core.llm.get_chat_client", lambda: client)
+        tracer = _RecordingTracer()
+        monkeypatch.setattr("backend.core.tracing.get_tracer", lambda: tracer)
+
+        worker = QualityWorker()
+        await worker.review("x=1", "python", model="my-custom-model")
+
+        # tracing 应记录 model 为 my-custom-model
+        meta = tracer.spans[0].metadata
+        assert meta.get("model") == "my-custom-model"

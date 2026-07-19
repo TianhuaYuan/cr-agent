@@ -69,8 +69,9 @@ async def decompose_node(state: dict) -> dict:
 
     try:
         client = llm_mod.get_chat_client()
+        model = state.get("model_overrides", {}).get("decompose", settings.DECOMPOSE_MODEL)
         resp = await client.chat.completions.create(
-            model=settings.CHAT_MODEL,
+            model=model,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": _build_prompt(code, language)},

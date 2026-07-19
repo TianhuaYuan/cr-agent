@@ -35,14 +35,16 @@ logger = logging.getLogger(__name__)
 _REQUIRED_FIELDS = {"severity", "description"}
 
 _OUTPUT_FORMAT = (
-    "\n\n返回 JSON 数组，每项格式:\n"
-    '{"severity": "high|medium|low|info", '
+    "\n\n返回 JSON 数组（外层必须是 [...]），每项格式:\n"
+    '[\n'
+    '  {"severity": "high|medium|low|info", '
     '"line": 行号或null, '
     '"description": "问题描述", '
     '"suggestion": "修复建议", '
     '"code_snippet": "相关代码片段", '
-    '"confidence": 0.0到1.0的浮点数表示你对这条发现的置信度}\n'
-    "只输出 JSON，不要解释文字。"
+    '"confidence": 0.0~1.0的浮点数}\n'
+    "]\n"
+    "只输出 JSON 数组，不要解释文字，不要用 ```json 包裹。"
 )
 
 # confidence 兜底默认值：LLM 没给 confidence 时用这个（中等置信度，不偏不倚）。
@@ -90,8 +92,11 @@ class BaseWorker(ABC):
 
     # ── 主流程（Template Method）──────────────────────────
 
-    async def review(self, code: str, language: str) -> list[dict]:
+    async def review(self, code: str, language: str, model: str | None = None) -> list[dict]:
         """build → call → parse 主流程。子类不重写此方法。
+
+        Args:
+            model: 可选，使用的 LLM 模型名。None 时按 self.role 从 settings 取其默认 model。
 
         容错（Phase 5 + retry）：
         1. LLM transient 错误 → with_retry 重试 1 次（退避 1s）
@@ -103,7 +108,7 @@ class BaseWorker(ABC):
         try:
             prompt = self._build_prompt(code, language)
             text = await asyncio.wait_for(
-                self._call_llm(prompt), timeout=self.timeout
+                self._call_llm(prompt, model=model), timeout=self.timeout
             )
             return self._parse_response(text)
         except (asyncio.TimeoutError, APITimeoutError):
@@ -142,7 +147,16 @@ class BaseWorker(ABC):
         )
         return f"{self.system_prompt}{guard}{_OUTPUT_FORMAT}"
 
-    async def _call_llm(self, prompt: str) -> str:
+    def _resolve_model(self, model: str | None = None) -> str:
+        """解析 Worker 应使用的模型名。优先显式传入，其次按 role 从 settings 读，最后兜底 CHAT_MODEL。"""
+        if model is not None:
+            return model
+        return getattr(
+            settings, f"WORKER_{self.role.upper()}_MODEL", settings.CHAT_MODEL
+        )
+
+    async def _call_llm(self, prompt: str, model: str | None = None) -> str:
+        model_name = self._resolve_model(model)
         client = llm_mod.get_chat_client()
         # 重试 1 次：网络瞬断 / 5xx / 429 等 transient 错误，退避 1s 后重试。
         # 超时（APITimeoutError）不重试——总时间预算由外层 asyncio.wait_for 控制（self.timeout），
@@ -155,14 +169,14 @@ class BaseWorker(ABC):
             "llm_call",
             metadata={
                 "role": self.role,
-                "model": settings.CHAT_MODEL,
+                "model": model_name,
                 "prompt_length": len(prompt),
             },
         ) as span:
             start = time.perf_counter()
             resp = await with_retry(
                 client.chat.completions.create,
-                model=settings.CHAT_MODEL,
+                model=model_name,
                 messages=[
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt},

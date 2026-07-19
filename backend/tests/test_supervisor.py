@@ -14,8 +14,8 @@ from backend.services.supervisor.state import SupervisorState
 
 
 # ── Task 2.1: SupervisorState ──────────────────────────────────────────────
-def test_state_has_nine_fields():
-    """State 必须有计划书约定的 9 个字段。"""
+def test_state_has_ten_fields():
+    """State 必须有 10 个字段（含 Task 16.2 新增的 model_overrides）。"""
     fields = list(SupervisorState.__annotations__.keys())
     assert fields == [
         "code",
@@ -27,6 +27,7 @@ def test_state_has_nine_fields():
         "iteration_count",
         "max_iterations",
         "errors",
+        "model_overrides",
     ]
 
 

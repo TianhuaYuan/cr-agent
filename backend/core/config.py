@@ -10,6 +10,7 @@ import logging
 import os
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,29 @@ class Settings(BaseSettings):
     CHAT_API_KEY: str = ""
     CHAT_BASE_URL: str = "https://api.openai.com/v1"
     CHAT_MODEL: str = "gpt-4o-mini"
+
+    # ── 多模型支持（Task 16.1）：6 个角色独立配置 model ──
+    # 默认值 = CHAT_MODEL（向后兼容，未配置时行为不变）。
+    # 5 个 LLM 调用角色：decompose（任务拆解）/ 4 Worker / judge（评测裁判）。
+    # 生产场景：decompose + aggregate 用便宜模型，worker 用强模型，judge 用最强模型，可降本 40-60%。
+    # per-request 覆盖：API 层 model_overrides dict 优先于这些 settings。
+    DECOMPOSE_MODEL: str = ""  # 空 → 运行时回退到 CHAT_MODEL（避免 import 时硬绑定默认值）
+    WORKER_QUALITY_MODEL: str = ""
+    WORKER_SECURITY_MODEL: str = ""
+    WORKER_PERFORMANCE_MODEL: str = ""
+    WORKER_STRUCTURE_MODEL: str = ""
+    JUDGE_MODEL: str = ""
+
+    @model_validator(mode='after')
+    def _resolve_role_model_defaults(self):
+        """空字符串的角色 model 字段运行时回退到 CHAT_MODEL（向后兼容）。"""
+        for fld in (
+            "DECOMPOSE_MODEL", "WORKER_QUALITY_MODEL", "WORKER_SECURITY_MODEL",
+            "WORKER_PERFORMANCE_MODEL", "WORKER_STRUCTURE_MODEL", "JUDGE_MODEL",
+        ):
+            if not getattr(self, fld, "").strip():
+                setattr(self, fld, self.CHAT_MODEL)
+        return self
 
     # ── LLM 调用超时（秒）──
     # 单一来源：客户端（llm.py）与 Worker（base.py）都读它，消除散落的 60/120 双常量。

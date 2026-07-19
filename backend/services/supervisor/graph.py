@@ -91,7 +91,9 @@ def _make_worker_node(role: str):
     async def _node(state: dict) -> dict:
         code = state.get("code", "")
         language = state.get("language", "python")
-        findings = await worker.review(code, language)
+        overrides = state.get("model_overrides") or {}
+        worker_model = overrides.get(f"worker.{role}")
+        findings = await worker.review(code, language, model=worker_model)
         result: dict = {"worker_results": findings}
         # 降级 finding → 记录到 errors，供报告"审查警告"区标注
         degraded = [f for f in findings if _is_degraded(f)]

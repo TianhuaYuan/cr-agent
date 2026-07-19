@@ -1293,7 +1293,7 @@ function applyTheme(theme) {
   const newLink = document.createElement("link");
   newLink.rel = "stylesheet";
   newLink.setAttribute("data-hljs", "true");
-  newLink.href = `https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-${theme === "dark" ? "dark" : ""}.min.css`;
+  newLink.href = `https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github${theme === "dark" ? "-dark" : ""}.min.css`;
   document.head.appendChild(newLink);
 
   localStorage.setItem(STORAGE_KEY_THEME, theme);
@@ -1576,7 +1576,7 @@ function setProgressTime(elapsedSec) {
    调用 /api/v1/reviews/stream(SSE 流式审查)
    ════════════════════════════════════════════════════════════ */
 async function submitReviewStream() {
-  let apiUrl, body;
+  let apiUrl, body, code = "", language = "python";
 
   if (inputMode === "pr") {
     const prUrl = els.prUrl.value.trim();
@@ -1591,8 +1591,8 @@ async function submitReviewStream() {
     apiUrl = "/api/v1/reviews/stream/from-pr";
     body = JSON.stringify({ pr_url: prUrl });
   } else {
-    const code = els.code.value;
-    const language = els.lang.value;
+    code = els.code.value;
+    language = els.lang.value;
     if (!code.trim()) {
       showError("代码不能为空");
       return;

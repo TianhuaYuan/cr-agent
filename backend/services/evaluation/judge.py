@@ -107,16 +107,23 @@ async def judge_with_llm(
     expected_findings: list[dict],
     actual_report: str,
     client=None,
+    model: str | None = None,
 ) -> Judgment:
-    """LLM 作为裁判评分。client 可注入（测试用）。"""
+    """LLM 作为裁判评分。
+
+    Args:
+        model: 可选，使用的 LLM 模型名。None 时用 settings.JUDGE_MODEL。
+        client: 可注入（测试用）。
+    """
     client = client or llm_mod.get_chat_client()
+    model = model or settings.JUDGE_MODEL
     prompt = _PROMPT.format(
         code=code,
         expected=json.dumps(expected_findings, ensure_ascii=False, indent=2),
         actual=actual_report,
     )
     resp = await client.chat.completions.create(
-        model=settings.CHAT_MODEL,
+        model=model,
         messages=[{"role": "user", "content": prompt}],
         timeout=settings.LLM_TIMEOUT,
     )

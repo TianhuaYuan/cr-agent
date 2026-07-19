@@ -11,6 +11,7 @@ W2 加 Celery/BackgroundTasks 后改为 202 + 后台异步执行。
 """
 import json
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -36,8 +37,18 @@ router = APIRouter(
 
 
 def _sse_event(event: str, data: dict) -> str:
-    """构造一条 SSE 事件：event: ...\ndata: ...\n\n"""
-    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+    """构造一条 SSE 事件，填充到 ~1KB 以触发浏览器缓冲区刷出。
+
+    填充作为 SSE 注释行（: ...）塞在事件体内，避免破坏 \n\n 事件边界。
+    """
+    payload = json.dumps(data, ensure_ascii=False)
+    body = f"event: {event}\ndata: {payload}\n"
+    need = 1024 - len(body) - 2  # ": \n\n" = 4, but body already has \n, so 3
+    if need > 0:
+        body += ": " + " " * need + "\n\n"
+    else:
+        body += "\n"
+    return body
 
 
 def _is_user_node(name: str) -> bool:
@@ -65,9 +76,14 @@ async def _create_review_record(code: str, language: str, db: AsyncSession) -> R
 
 
 async def _run_review_stream(
-    code: str, language: str, db: AsyncSession
+    code: str, language: str, db: AsyncSession,
+    model_overrides: dict | None = None,
 ):
     """执行审查并流式产出 SSE 事件。
+
+    用 graph.astream(stream_mode="updates") 替代 astream_events，
+    后者在 LangGraph 1.2.7 中事件格式不稳定，导致 node_start/node_end 不触发。
+    astream 直接 yield 每个节点的完成输出，更可靠。
 
     事件类型：
     - node_start: 节点开始执行 { "node": "<name>" }
@@ -79,26 +95,41 @@ async def _run_review_stream(
     review_id = str(review.id)
 
     try:
+        # 初始心跳：填充 ~1KB 刷出响应头
+        yield ": heartbeat" + " " * 1000 + "\n\n"
+
         graph = build_supervisor_graph()
-        final_state = None
+        report = ""
+        workers_seen = set()
+        WORKER_NAMES = {"worker_quality", "worker_security", "worker_performance", "worker_structure"}
 
-        async for event in graph.astream_events(
-            {"code": code, "language": language},
-            version="v2",
+        # 先发 decompose 的 node_start
+        yield _sse_event("node_start", {"node": "decompose"})
+
+        initial_state: dict = {"code": code, "language": language}
+        if model_overrides:
+            initial_state["model_overrides"] = model_overrides
+
+        async for update in graph.astream(
+            initial_state,
+            stream_mode="updates",
         ):
-            kind = event.get("event", "")
-            name = event.get("name", "")
-            data = event.get("data", {})
+            for node_name, node_output in update.items():
+                if node_name == "decompose":
+                    yield _sse_event("node_end", {"node": "decompose"})
+                    # 并行启动 4 个 Worker
+                    for w in WORKER_NAMES:
+                        yield _sse_event("node_start", {"node": w})
+                elif node_name in WORKER_NAMES:
+                    workers_seen.add(node_name)
+                    yield _sse_event("node_end", {"node": node_name})
+                    # 所有 Worker 完成 → 启动 aggregate
+                    if workers_seen == WORKER_NAMES:
+                        yield _sse_event("node_start", {"node": "aggregate"})
+                elif node_name == "aggregate":
+                    yield _sse_event("node_end", {"node": "aggregate"})
+                    report = (node_output or {}).get("report", "")
 
-            if kind == "on_chain_start" and _is_user_node(name):
-                yield _sse_event("node_start", {"node": name})
-            elif kind == "on_chain_end" and _is_user_node(name):
-                yield _sse_event("node_end", {"node": name})
-
-            if kind == "on_chain_end" and name == "LangGraph":
-                final_state = data.get("output")
-
-        report = (final_state or {}).get("report", "")
         review.status = "completed"
         review.report = report
         await db.commit()
@@ -157,7 +188,7 @@ async def stream_review(req: ReviewRequest, db: AsyncSession = Depends(get_db)):
     Content-Type: text/event-stream
     """
     return StreamingResponse(
-        _run_review_stream(req.code, req.language, db),
+        _run_review_stream(req.code, req.language, db, model_overrides=req.model_overrides),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -207,11 +238,12 @@ async def create_review_from_pr(req: PRReviewRequest, db: AsyncSession = Depends
         result = await graph.ainvoke({
             "code": code,
             "language": language,
+            "model_overrides": req.model_overrides,
         })
         review.status = "completed"
         review.report = result.get("report", "")
     except Exception as exc:
-        logger.error("审查执行失败: %s", exc, exc_info=True)
+        logger.error("PR 审查执行失败: %s", exc, exc_info=True)
         review.status = "failed"
         review.report = f"# 审查失败\n\n执行过程中发生异常：{exc}"
 
@@ -226,7 +258,7 @@ async def stream_review_from_pr(req: PRReviewRequest, db: AsyncSession = Depends
     code, language = await _fetch_pr_code(req.pr_url)
 
     return StreamingResponse(
-        _run_review_stream(code, language, db),
+        _run_review_stream(code, language, db, model_overrides=req.model_overrides),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

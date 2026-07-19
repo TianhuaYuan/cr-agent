@@ -14,15 +14,43 @@ def extract_json_array(text: str) -> list:
     """从 LLM 文本提取 JSON 数组。
 
     LLM 常把 JSON 包在 ```json ... ``` 或夹杂解释文字里，不能直接 json.loads 整个文本。
-    用正则抓第一个 '[' 到最后一个 ']' 的子串，最稳。抓不到或解析失败抛 ValueError。
+    先剥掉 markdown 代码围栏（```json / ```），然后用正则抓第一个 '[' 到最后一个 ']'。
+    若找不到数组，尝试抓单个对象 {…} 当单元素数组。
+    若都找不到，匹配「无问题」关键词 → 返回空数组。
+    全部失败抛 ValueError。
     """
+    # 先剥掉 markdown 代码围栏 ```json ... ```
+    text = re.sub(r"```(?:json)?\s*\n?", "", text)
+
+    # 尝试 JSON 数组
     match = re.search(r"\[.*\]", text, re.DOTALL)
-    if not match:
-        raise ValueError("响应中找不到 JSON 数组")
-    data = json.loads(match.group(0))
-    if not isinstance(data, list):
-        raise ValueError("LLM 返回的不是数组")
-    return data
+    if match:
+        try:
+            data = json.loads(match.group(0))
+            if isinstance(data, list):
+                return data
+        except json.JSONDecodeError:
+            pass
+
+    # 尝试单个 JSON 对象 → 当单元素数组
+    obj_match = re.search(r"\{.*\}", text, re.DOTALL)
+    if obj_match:
+        try:
+            obj = json.loads(obj_match.group(0))
+            if isinstance(obj, dict):
+                return [obj]
+        except json.JSONDecodeError:
+            pass
+
+    # 尝试匹配「无问题」关键词
+    no_issue = re.search(
+        r"没[有找到发现]|未[发现找到]|no\s*(issue|problem|finding)s?|nothing\s*(to\s*)?report|clean|all\s*good",
+        text, re.IGNORECASE,
+    )
+    if no_issue:
+        return []
+
+    raise ValueError("响应中找不到 JSON 数组")
 
 
 async def fetch_pr_code(pr_url: str) -> Tuple[str, str]:

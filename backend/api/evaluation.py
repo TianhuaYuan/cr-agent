@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_DATASET = Path(__file__).resolve().parent.parent / "tests" / "eval_samples" / "dataset.json"
 
 # 预计算的 LLM-as-Judge 全量评测结果
-_LLM_PRECOMPUTED = Path(__file__).resolve().parent.parent.parent / "tasks" / "eval_llm_full.json"
+_LLM_PRECOMPUTED = Path(__file__).resolve().parent.parent.parent / "docs" / "tasks" / "eval_llm_full.json"
 
 _cache: dict = {"data": None, "loaded_at": 0.0, "mode": None}
 
@@ -94,14 +94,22 @@ async def _run_evaluation(
                 )
                 for f in expected
             ]
-            result = await run_one(sample)
-            results.append({
-                "id": result["id"],
-                "category": result["category"],
-                "language": result["language"],
-                "judgment": result["judgment"],
-                "prf": result["prf"],
-            })
+            try:
+                result = await run_one(sample)
+                results.append({
+                    "id": result["id"],
+                    "category": result["category"],
+                    "language": result["language"],
+                    "judgment": result["judgment"],
+                    "prf": result["prf"],
+                })
+            except Exception as exc:
+                logger.error("样本 %s 评测失败: %s", s["id"], exc)
+                results.append({
+                    "id": s["id"],
+                    "category": s.get("category", "?"),
+                    "error": str(exc),
+                })
             logger.info("评测进度: %d/%d", i + 1, len(samples))
         else:
             # 规则基线：快速假数据（保持秒级响应）

@@ -535,9 +535,11 @@ body {
 .progress-node[data-state="pending"] .node-name { color: var(--text-muted); }
 
 /* running 态 */
+.progress-node[data-state="running"] {
+  background: rgba(245, 158, 11, 0.08);
+}
 .progress-node[data-state="running"] .node-icon {
   color: var(--warning);
-  animation: progress-pulse 1s ease-in-out infinite;
 }
 .progress-node[data-state="running"] .node-name {
   color: var(--text);
@@ -549,6 +551,9 @@ body {
 }
 
 /* done 态 */
+.progress-node[data-state="done"] {
+  background: rgba(16, 185, 129, 0.06);
+}
 .progress-node[data-state="done"] .node-icon { color: var(--success); }
 .progress-node[data-state="done"] .node-name { color: var(--text); }
 .progress-node[data-state="done"] .node-status {
@@ -557,20 +562,15 @@ body {
 }
 
 /* error 态 */
+.progress-node[data-state="error"] {
+  background: rgba(239, 68, 68, 0.06);
+}
 .progress-node[data-state="error"] .node-icon { color: var(--error); }
 .progress-node[data-state="error"] .node-name { color: var(--text); }
 .progress-node[data-state="error"] .node-status { color: var(--error); opacity: 1; }
 
-@keyframes progress-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.15); }
-}
-
 /* 减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
-  .progress-node[data-state="running"] .node-icon {
-    animation: none;
-  }
   .progress-node { transition: none; }
 }
 
@@ -853,14 +853,14 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* 尊重用户的减少动效偏好 */
+/* 尊重减少动效偏好（仅对装饰性动画降级，保留功能性动画） */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .spinner {
+    animation: spin 1.5s linear infinite;  /* 降速但不停止，保留进度可见性 */
   }
-  .spinner { animation: none; }
+  .progress-node[data-state="running"] .node-icon {
+    animation: none;  /* 脉冲动画移除，但仍保留 running 颜色 */
+  }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1866,7 +1866,57 @@ def save_to_file(content, filename):
 /* ════════════════════════════════════════════════════════════
    Markdown 渲染(marked + highlight.js)
    ════════════════════════════════════════════════════════════ */
+
+// 流式 token 缓冲区：按 role 分组收集 LLM token
+let streamBuffers = {};
+let streamStarted = false;
+
+function resetStreamBuffers() {
+  streamBuffers = {};
+  streamStarted = false;
+}
+
+function appendStreamToken(role, content) {
+  if (!streamStarted) {
+    // 首次收到 token：清空报告区，准备流式显示
+    els.report.innerHTML = '<div class="report-content" id="stream-content"></div>';
+    streamStarted = true;
+    streamBuffers = {};
+  }
+
+  if (!streamBuffers[role]) {
+    streamBuffers[role] = "";
+  }
+  streamBuffers[role] += content;
+
+  // 实时渲染所有已接收的流式内容
+  const container = document.getElementById("stream-content");
+  if (!container) return;
+
+  let html = "";
+  const roleLabels = {
+    quality: "🔍 代码质量",
+    security: "🔒 安全审查",
+    performance: "⚡ 性能分析",
+    structure: "🏗️ 架构设计",
+  };
+
+  for (const [r, text] of Object.entries(streamBuffers)) {
+    const label = roleLabels[r] || r;
+    html += `<h3>${label}</h3>\n`;
+    // 用 marked 渲染 markdown，但保留部分标记以防输出不完整
+    try {
+      html += marked.parse(text) + "\n";
+    } catch {
+      html += `<pre>${escapeHtml(text)}</pre>\n`;
+    }
+  }
+
+  container.innerHTML = html;
+}
+
 function renderMarkdown(md) {
+  resetStreamBuffers();  // 完整报告渲染时清空流式缓冲
   marked.setOptions({ gfm: true, breaks: false });
   let html = marked.parse(md);
 
@@ -2106,13 +2156,25 @@ async function submitReviewStream() {
 
   setRunning(true);
   resetProgress();
-  setStatus("running", "streaming · 实时进度");
+  resetStreamBuffers();
+  setStatus("running", 'streaming · <span id="stream-elapsed">0.0s</span>');
   els.btnCopyMd.disabled = true;
 
   const start = performance.now();
   let report = "";
   let reviewId = null;
   let finalStatus = "failed";
+
+  // 独立计时器：用 setInterval 每 100ms 更新，不依赖 SSE 数据流
+  // 解决 bug：之前 setProgressTime 只在 reader.read() 返回后才调用，
+  // LLM 执行期间无数据到达 → 读阻塞 → 计时器冻结。
+  const progressTimer = setInterval(() => {
+    const elapsed = (performance.now() - start) / 1000;
+    setProgressTime(elapsed);
+    // 只更新文本节点，不重建 spinner DOM（避免抖动）
+    const timeSpan = document.getElementById("stream-elapsed");
+    if (timeSpan) timeSpan.textContent = elapsed.toFixed(1) + "s";
+  }, 100);
 
   // SSE 流式读取 + 断开重试 1 次
   // retry: 网络断开时,如果还没收到 complete 事件,重试 1 次
@@ -2160,8 +2222,6 @@ async function submitReviewStream() {
         buffer = buffer.slice(idx + 2);
         handleSseEvent(rawEvent);
       }
-
-      setProgressTime((performance.now() - start) / 1000);
     }
   }
 
@@ -2185,6 +2245,9 @@ async function submitReviewStream() {
       setNodeState(data.node, "running");
     } else if (event === "node_end") {
       setNodeState(data.node, "done");
+    } else if (event === "token") {
+      // LLM 流式 token：实时追加到报告面板
+      appendStreamToken(data.role, data.content);
     } else if (event === "error") {
       showError(data.detail || "审查出错");
     } else if (event === "complete") {
@@ -2221,6 +2284,7 @@ async function submitReviewStream() {
       els.btnCopyMd.disabled = false;
     }
 
+    clearInterval(progressTimer);
     setProgressTime(parseFloat(elapsed));
 
     if (reviewId) {
@@ -2235,6 +2299,7 @@ async function submitReviewStream() {
       });
     }
   } catch (e) {
+    clearInterval(progressTimer);
     const elapsed = ((performance.now() - start) / 1000).toFixed(1);
     const hint = retried ? "（已重试 1 次仍失败）" : "";
     setStatus("error", `error · ${elapsed}s${hint}`);

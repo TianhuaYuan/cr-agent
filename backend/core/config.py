@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     # Worker 每次调用会把它作为 asyncio.wait_for 的权威超时传下去。
     LLM_TIMEOUT: float = 120.0
 
+    # ── LLM 流式输出开关 ──
+    # 控制 Worker 的 LLM 调用是否使用 stream=True + get_stream_writer() 推送 token。
+    # 依赖 LangGraph 上下文（graph.astream 运行时）。若下游 API 不支持 streaming，
+    # 可设为 False 降级为批量模式；Worker 内部也会在 RuntimeError 时自动降级。
+    LLM_STREAMING_ENABLED: bool = True
+
     # ── 置信度阈值（Task 13.2）──
     # Aggregator 层过滤 confidence < 阈值的 finding，移到低置信度区。
     # 0.0 = 不过滤（保留所有 finding）；0.5 = 中等过滤；0.7 = 激进过滤。

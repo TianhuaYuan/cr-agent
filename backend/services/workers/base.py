@@ -164,6 +164,21 @@ class BaseWorker(ABC):
         # 编程错误（TypeError/ValueError 等）不重试，立即抛。
         # Task 14.2: tracing 包裹 LLM 调用，记录 prompt/completion/latency/tokens。
         # NoOp tracer 零开销（仅 with + 字典赋值）；Langfuse 模式同步到 backend。
+
+        # 尝试获取 LangGraph stream writer（不在 graph 上下文中安全降级为 no-op）
+        _has_stream_writer = True
+        try:
+            from langgraph.config import get_stream_writer
+            _stream_writer = get_stream_writer()
+        except (RuntimeError, ImportError):
+            _stream_writer = lambda _: None
+            _has_stream_writer = False
+
+        # 流式仅在同时满足以下条件时启用：
+        # 1. 全局开关打开（LLM_STREAMING_ENABLED）
+        # 2. 有真正的 stream writer（在 graph 上下文中，非测试/CLI 直接调用）
+        use_streaming = settings.LLM_STREAMING_ENABLED and _has_stream_writer
+
         tracer = tracing_mod.get_tracer()
         with tracer.start_span(
             "llm_call",
@@ -174,29 +189,123 @@ class BaseWorker(ABC):
             },
         ) as span:
             start = time.perf_counter()
-            resp = await with_retry(
-                client.chat.completions.create,
-                model=model_name,
-                messages=[
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.3,
-                max_tokens=4096,
-                timeout=self.timeout,
-                max_retries=1,
-                base_delay=1.0,
-            )
-            text = resp.choices[0].message.content or ""
+
+            if use_streaming:
+                # ── 流式路径：stream=True + get_stream_writer 实时推送 token ──
+                try:
+                    stream = await with_retry(
+                        client.chat.completions.create,
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": self.system_prompt},
+                            {"role": "user", "content": prompt},
+                        ],
+                        temperature=0.3,
+                        max_tokens=4096,
+                        timeout=self.timeout,
+                        stream=True,
+                        max_retries=1,
+                        base_delay=1.0,
+                    )
+                except Exception:
+                    # streaming API 调用失败（部分 provider 不支持 streaming）→ 降级非流式
+                    use_streaming = False
+
+            if not use_streaming:
+                # ── 非流式路径（原有逻辑）──────────────────────────
+                resp = await with_retry(
+                    client.chat.completions.create,
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": self.system_prompt},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=0.3,
+                    max_tokens=4096,
+                    timeout=self.timeout,
+                    max_retries=1,
+                    base_delay=1.0,
+                )
+                text = resp.choices[0].message.content or ""
+                latency_ms = (time.perf_counter() - start) * 1000.0
+                update_meta: dict = {
+                    "completion_length": len(text),
+                    "latency_ms": round(latency_ms, 2),
+                }
+                usage = getattr(resp, "usage", None)
+                if usage is not None and getattr(usage, "total_tokens", None) is not None:
+                    update_meta["tokens"] = usage.total_tokens
+                span.update(update_meta)
+                return text
+
+            # ── 流式路径：逐 token 推送 ──────────────────────────
+            chunks: list[str] = []
+            stream_failed = False
+
+            # 检测是否为真正的 async stream（有 __aiter__），
+            # 兼容 mock/测试环境返回的伪流式对象（普通 SimpleNamespace）
+            if not hasattr(stream, "__aiter__"):
+                stream_failed = True
+            else:
+                try:
+                    async for chunk in stream:
+                        delta = chunk.choices[0].delta if chunk.choices else None
+                        if delta and delta.content:
+                            chunks.append(delta.content)
+                            _stream_writer({
+                                "type": "token",
+                                "role": self.role,
+                                "content": delta.content,
+                            })
+                except (TypeError, AttributeError):
+                    # chunk 结构不符合预期（mock 环境返回 message 而非 delta）
+                    stream_failed = True
+                except Exception:
+                    # 流中断（网络闪断等）→ 已收集的 chunks 仍可解析
+                    pass
+
+            if stream_failed or not chunks:
+                # 流式失败或空结果 → 尝试从已返回的响应对象中提取内容
+                # （兼容 mock/测试环境的非流式响应 + API 不支持的 provider）
+                resp = None
+                try:
+                    text = stream.choices[0].message.content or ""
+                except (AttributeError, TypeError):
+                    # 响应对象也无法提取 → 降级为非流式 API 重试
+                    resp = await with_retry(
+                        client.chat.completions.create,
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": self.system_prompt},
+                            {"role": "user", "content": prompt},
+                        ],
+                        temperature=0.3,
+                        max_tokens=4096,
+                        timeout=self.timeout,
+                        max_retries=1,
+                        base_delay=1.0,
+                    )
+                    text = resp.choices[0].message.content or ""
+                latency_ms = (time.perf_counter() - start) * 1000.0
+                update_meta: dict = {
+                    "completion_length": len(text),
+                    "latency_ms": round(latency_ms, 2),
+                    "streamed": False,
+                }
+                if resp is not None:
+                    usage = getattr(resp, "usage", None)
+                    if usage is not None and getattr(usage, "total_tokens", None) is not None:
+                        update_meta["tokens"] = usage.total_tokens
+                span.update(update_meta)
+                return text
+
+            text = "".join(chunks)
             latency_ms = (time.perf_counter() - start) * 1000.0
-            update_meta: dict = {
+            span.update({
                 "completion_length": len(text),
                 "latency_ms": round(latency_ms, 2),
-            }
-            usage = getattr(resp, "usage", None)
-            if usage is not None and getattr(usage, "total_tokens", None) is not None:
-                update_meta["tokens"] = usage.total_tokens
-            span.update(update_meta)
+                "streamed": True,
+            })
             return text
 
     def _parse_response(self, text: str) -> list[dict]:

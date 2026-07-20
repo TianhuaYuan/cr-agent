@@ -81,13 +81,16 @@ async def _run_review_stream(
 ):
     """执行审查并流式产出 SSE 事件。
 
-    用 graph.astream(stream_mode="updates") 替代 astream_events，
-    后者在 LangGraph 1.2.7 中事件格式不稳定，导致 node_start/node_end 不触发。
-    astream 直接 yield 每个节点的完成输出，更可靠。
+    使用 stream_mode=["updates", "tasks"]：
+    - "tasks" 在节点真正开始执行时立即推送 TaskPayload（含 name），
+      前端收到后立刻把进度条从 pending → running，不再等到节点完成。
+    - "updates" 在节点完成时推送结果（report 从 aggregate 节点提取）。
+    - 同时开启 "custom" 模式以便 Worker 通过 get_stream_writer() 推送 LLM token。
 
     事件类型：
     - node_start: 节点开始执行 { "node": "<name>" }
     - node_end:   节点执行完成 { "node": "<name>" }
+    - token:      LLM 流式 token { "role": "...", "content": "..." }
     - complete:   整体完成 { "review_id": "...", "report": "...", "status": "..." }
     - error:      执行异常 { "detail": "..." }
     """
@@ -109,23 +112,49 @@ async def _run_review_stream(
 
         started_nodes: set[str] = set()
 
-        async for update in graph.astream(
+        # stream_mode 用列表 → yield (mode, data) 元组
+        # "tasks": 节点开始/结束时立即推送（解决进度不实时）
+        # "updates": 节点完成时推送结果（提取 report）
+        # "custom": Worker 通过 get_stream_writer() 推送 LLM token（解决无流式输出）
+        async for mode, data in graph.astream(
             initial_state,
-            stream_mode="updates",
+            stream_mode=["updates", "tasks", "custom"],
         ):
-            for node_name, node_output in update.items():
-                if node_name not in started_nodes:
-                    yield _sse_event("node_start", {"node": node_name})
-                    started_nodes.add(node_name)
+            if mode == "tasks":
+                # data 是单个 TaskPayload 或 TaskResultPayload dict
+                node_name = data.get("name", "")
+                if not _is_user_node(node_name):
+                    continue
+                # TaskPayload 有 "input" 键 → 任务开始
+                # TaskResultPayload 有 "result"/"error" 键 → 任务结束
+                if "input" in data:
+                    if node_name not in started_nodes:
+                        yield _sse_event("node_start", {"node": node_name})
+                        started_nodes.add(node_name)
 
-                if node_name == "decompose":
-                    yield _sse_event("node_end", {"node": "decompose"})
-                elif node_name in WORKER_NAMES:
-                    workers_seen.add(node_name)
-                    yield _sse_event("node_end", {"node": node_name})
-                elif node_name == "aggregate":
-                    yield _sse_event("node_end", {"node": "aggregate"})
-                    report = (node_output or {}).get("report", "")
+            elif mode == "updates":
+                # data 是 dict[str, Any] — {node_name: output}
+                for node_name, node_output in data.items():
+                    if not _is_user_node(node_name):
+                        continue
+                    # node_start 由 tasks 模式保障，这里只负责 node_end + report
+                    if node_name not in started_nodes:
+                        yield _sse_event("node_start", {"node": node_name})
+                        started_nodes.add(node_name)
+
+                    if node_name == "decompose":
+                        yield _sse_event("node_end", {"node": "decompose"})
+                    elif node_name in WORKER_NAMES:
+                        workers_seen.add(node_name)
+                        yield _sse_event("node_end", {"node": node_name})
+                    elif node_name == "aggregate":
+                        yield _sse_event("node_end", {"node": "aggregate"})
+                        report = (node_output or {}).get("report", "")
+
+            elif mode == "custom":
+                # data 是 Worker 通过 get_stream_writer() 推送的 LLM token
+                if isinstance(data, dict) and data.get("type") == "token":
+                    yield _sse_event("token", data)
 
         review.status = "completed"
         review.report = report

@@ -1,0 +1,236 @@
+[
+  {
+    "id": "sec-001",
+    "language": "python",
+    "category": "security",
+    "code": "API_KEY = 'sk-live-1234567890abcdef'\nDB_PASSWORD = 'admin123'\n\ndef connect():\n    return f'mysql://root:{DB_PASSWORD}@localhost/db'",
+    "expected_findings": [
+      {"severity": "high", "category": "security", "description": "硬编码 API 密钥和数据库密码", "line": 1}
+    ]
+  },
+  {
+    "id": "sec-002",
+    "language": "python",
+    "category": "security",
+    "code": "def login(user, pwd):\n    sql = f\"SELECT * FROM users WHERE name='{user}' AND pw='{pwd}'\"\n    cursor.execute(sql)\n    return cursor.fetchone()",
+    "expected_findings": [
+      {"severity": "high", "category": "security", "description": "SQL 语句字符串拼接，存在注入风险", "line": 2}
+    ]
+  },
+  {
+    "id": "sec-003",
+    "language": "python",
+    "category": "security",
+    "code": "def run(expr):\n    return eval(expr)\n\ndef handler(data):\n    run(data['formula'])",
+    "expected_findings": [
+      {"severity": "high", "category": "security", "description": "使用 eval 执行不可信输入，存在代码注入", "line": 2}
+    ]
+  },
+  {
+    "id": "sec-004",
+    "language": "python",
+    "category": "security",
+    "code": "import os\n\ndef backup(name):\n    os.system(f'cp {name} /backup/{name}')",
+    "expected_findings": [
+      {"severity": "high", "category": "security", "description": "os.system 拼接用户输入，存在命令注入", "line": 4}
+    ]
+  },
+  {
+    "id": "sec-005",
+    "language": "python",
+    "category": "security",
+    "code": "import hashlib\n\ndef store_password(pwd):\n    return hashlib.md5(pwd.encode()).hexdigest()",
+    "expected_findings": [
+      {"severity": "medium", "category": "security", "description": "使用 MD5 弱哈希存储密码，应加盐并用 bcrypt/scrypt", "line": 4}
+    ]
+  },
+  {
+    "id": "sec-006",
+    "language": "python",
+    "category": "security",
+    "code": "import requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)",
+    "expected_findings": [
+      {"severity": "medium", "category": "security", "description": "verify=False 关闭 TLS 证书校验，存在中间人攻击风险", "line": 4}
+    ]
+  },
+  {
+    "id": "sec-007",
+    "language": "javascript",
+    "category": "security",
+    "code": "const apiKey = \"sk-live-abc123xyz\";\nfunction callApi(){\n  return fetch(\"https://api.example.com\", { headers: { Authorization: apiKey } });\n}",
+    "expected_findings": [
+      {"severity": "high", "category": "security", "description": "硬编码 API 密钥在客户端代码中", "line": 1}
+    ]
+  },
+  {
+    "id": "q-001",
+    "language": "python",
+    "category": "quality",
+    "code": "def process(data):\n    result = []\n    for row in data:\n        a = row['a']\n        b = row['b']\n        c = a + b\n        d = c * 2\n        e = d - 1\n        f = e / 2\n        g = f ** 2\n        result.append(g)\n        if g > 10:\n            result.append(g * 3)\n        else:\n            result.append(g / 3)\n        if g > 100:\n            result.append(g * 10)\n    return result",
+    "expected_findings": [
+      {"severity": "medium", "category": "quality", "description": "函数过长且做了太多事，应拆分为多个小函数", "line": 1}
+    ]
+  },
+  {
+    "id": "q-002",
+    "language": "python",
+    "category": "quality",
+    "code": "def delay():\n    time.sleep(42)\n    retry(7, 3)\n    timeout = 86400",
+    "expected_findings": [
+      {"severity": "low", "category": "quality", "description": "魔法数字 42/7/3/86400 缺乏语义，应定义为常量", "line": 2}
+    ]
+  },
+  {
+    "id": "q-003",
+    "language": "python",
+    "category": "quality",
+    "code": "def f(a, b, c):\n    d = a + b\n    tmp = d * c\n    xx = tmp / 2\n    return xx",
+    "expected_findings": [
+      {"severity": "low", "category": "quality", "description": "变量命名 a/b/c/d/tmp/xx 无语义，应见名知意", "line": 1}
+    ]
+  },
+  {
+    "id": "q-004",
+    "language": "python",
+    "category": "quality",
+    "code": "def report_a(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total\n\ndef report_b(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total",
+    "expected_findings": [
+      {"severity": "medium", "category": "quality", "description": "report_a 与 report_b 存在重复代码，应抽取公共函数", "line": 1}
+    ]
+  },
+  {
+    "id": "q-005",
+    "language": "python",
+    "category": "quality",
+    "code": "def save(record):\n    try:\n        db.insert(record)\n    except Exception:\n        pass",
+    "expected_findings": [
+      {"severity": "medium", "category": "quality", "description": "空 except 吞掉异常，错误被静默忽略难以排查", "line": 4}
+    ]
+  },
+  {
+    "id": "q-006",
+    "language": "python",
+    "category": "quality",
+    "code": "def classify(x):\n    if x > 0:\n        if x < 10:\n            if x % 2 == 0:\n                if x != 5:\n                    return 'small-even'\n                else:\n                    return 'five'\n            else:\n                return 'odd'\n        else:\n            return 'big'\n    else:\n        return 'neg'",
+    "expected_findings": [
+      {"severity": "medium", "category": "quality", "description": "深度嵌套 if，应使用卫语句(early return)降低圈复杂度", "line": 1}
+    ]
+  },
+  {
+    "id": "q-007",
+    "language": "javascript",
+    "category": "quality",
+    "code": "function f(a,b){ var x1=a+b; var y2=x1*2; var tmp=y2/3; return tmp; }",
+    "expected_findings": [
+      {"severity": "low", "category": "quality", "description": "变量命名 x1/y2/tmp 无语义，函数名 f 不明确", "line": 1}
+    ]
+  },
+  {
+    "id": "p-001",
+    "language": "python",
+    "category": "performance",
+    "code": "def get_orders(users):\n    result = []\n    for u in users:\n        orders = db.query(f'SELECT * FROM orders WHERE uid={u.id}')\n        result.extend(orders)\n    return result",
+    "expected_findings": [
+      {"severity": "high", "category": "performance", "description": "N+1 查询：循环内逐用户查库，应改为单条 IN 查询或 join", "line": 4}
+    ]
+  },
+  {
+    "id": "p-002",
+    "language": "python",
+    "category": "performance",
+    "code": "def load_all():\n    rows = db.query('SELECT * FROM huge_table')\n    return [r for r in rows]",
+    "expected_findings": [
+      {"severity": "medium", "category": "performance", "description": "一次性全表加载到内存，应使用分页或流式游标", "line": 2}
+    ]
+  },
+  {
+    "id": "p-003",
+    "language": "python",
+    "category": "performance",
+    "code": "def build(n):\n    s = ''\n    for i in range(n):\n        s += str(i)\n    return s",
+    "expected_findings": [
+      {"severity": "medium", "category": "performance", "description": "循环中字符串 += 反复拷贝，应使用 ''.join()", "line": 3}
+    ]
+  },
+  {
+    "id": "p-004",
+    "language": "python",
+    "category": "performance",
+    "code": "def norm(items):\n    out = []\n    for x in items:\n        mx = max(items)\n        out.append(x / mx)\n    return out",
+    "expected_findings": [
+      {"severity": "medium", "category": "performance", "description": "循环内重复计算 max(items) 不变值，应提到循环外", "line": 4}
+    ]
+  },
+  {
+    "id": "p-005",
+    "language": "python",
+    "category": "performance",
+    "code": "counter = 0\ndef inc():\n    global counter\n    for _ in range(1000000):\n        counter += 1\n    return counter",
+    "expected_findings": [
+      {"severity": "low", "category": "performance", "description": "全局变量高频读写引发锁竞争，应改为局部变量或批处理", "line": 4}
+    ]
+  },
+  {
+    "id": "p-006",
+    "language": "python",
+    "category": "performance",
+    "code": "import copy\ndef transform(data):\n    out = []\n    for d in data:\n        out.append(copy.deepcopy(d))\n    return out",
+    "expected_findings": [
+      {"severity": "low", "category": "performance", "description": "对无需修改的对象做 deepcopy 浪费性能，浅拷贝或直传即可", "line": 4}
+    ]
+  },
+  {
+    "id": "st-001",
+    "language": "python",
+    "category": "structure",
+    "code": "def handle_everything(req):\n    user = db.query(req.uid)\n    order = db.query(req.oid)\n    pay = gateway.charge(order.amt)\n    email.send(user.email, pay.receipt)\n    log.write(req)\n    cache.set(req.key, order)\n    metrics.inc('orders')\n    return render(order, pay, user)",
+    "expected_findings": [
+      {"severity": "high", "category": "structure", "description": "上帝函数：同时做查库/支付/发邮件/日志/缓存/指标，应拆分为多步管线", "line": 1}
+    ]
+  },
+  {
+    "id": "st-002",
+    "language": "python",
+    "category": "structure",
+    "code": "def user_api(req):\n    db.query(req.uid)\n    send_email(req.uid)\n    render_html(req.uid)\n    write_log(req.uid)\n    update_cache(req.uid)",
+    "expected_findings": [
+      {"severity": "medium", "category": "structure", "description": "单函数混杂数据访问/通知/视图/日志/缓存多种职责，违反单一职责", "line": 1}
+    ]
+  },
+  {
+    "id": "st-003",
+    "language": "python",
+    "category": "structure",
+    "code": "CONFIG = {}\ndef init():\n    CONFIG['ready'] = True\n\ndef worker():\n    if CONFIG.get('ready'):\n        CONFIG['count'] = CONFIG.get('count', 0) + 1",
+    "expected_findings": [
+      {"severity": "medium", "category": "structure", "description": "依赖全局可变状态 CONFIG，难以测试且存在并发竞态", "line": 1}
+    ]
+  },
+  {
+    "id": "st-004",
+    "language": "python",
+    "category": "structure",
+    "code": "# a.py: from b import make_b\n# b.py: from a import make_a\n# 两者互相 import，运行时 ImportError / 循环依赖\ndef make_a():\n    return 'a'\n\ndef make_b():\n    return 'b'",
+    "expected_findings": [
+      {"severity": "medium", "category": "structure", "description": "模块间循环依赖（a↔b），应抽取公共模块打破环", "line": 1}
+    ]
+  },
+  {
+    "id": "st-005",
+    "language": "python",
+    "category": "structure",
+    "code": "class App:\n    def auth(self): ...\n    def db_connect(self): ...\n    def render(self): ...\n    def send_mail(self): ...\n    def pay(self): ...\n    def log(self): ...\n    def cache(self): ...\n    def metrics(self): ...\n    def cron(self): ...\n    def migrate(self): ...",
+    "expected_findings": [
+      {"severity": "medium", "category": "structure", "description": "上帝类 App 承担 10+ 不相关职责，应按领域拆分为多个服务类", "line": 1}
+    ]
+  },
+  {
+    "id": "st-006",
+    "language": "javascript",
+    "category": "structure",
+    "code": "function main(){\n  var a = fetchData();\n  var b = transform(a);\n  var c = save(b);\n  var d = notify(c);\n  var e = log(d);\n  return e;\n}",
+    "expected_findings": [
+      {"severity": "low", "category": "structure", "description": "过程式面条代码，缺少模块化与清晰的阶段边界", "line": 1}
+    ]
+  }
+]

@@ -30,7 +30,7 @@ from backend.services.evaluation.metrics import compute_prf
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_DATASET = Path(__file__).resolve().parent.parent / "tests" / "eval_samples" / "dataset.json"
+DEFAULT_DATASET = Path(__file__).resolve().parent.parent / "data" / "dataset.json"
 
 # 预计算的 LLM-as-Judge 全量评测结果
 _LLM_PRECOMPUTED = Path(__file__).resolve().parent.parent / "data" / "eval_llm_full.json"

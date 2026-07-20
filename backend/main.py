@@ -23,6 +23,8 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.api.auth import router as auth_router
 from backend.api.evaluation import router as evaluation_router
+from backend.api.health import router as health_router
+from backend.api.models import router as models_router
 from backend.api.reviews import router as reviews_router
 from backend.api.webhooks import router as webhooks_router
 from backend.core.config import settings, validate_required_settings
@@ -129,6 +131,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(reviews_router, prefix="/api/v1")
+    app.include_router(models_router, prefix="/api/v1")
+    app.include_router(health_router, prefix="/api/v1")
     # 评测 API（C 功能后端，Task 3）
     app.include_router(evaluation_router, prefix="/api/v1")
     # JWT 签发端点（Task：API/MCP 鉴权）

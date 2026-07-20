@@ -1,0 +1,40 @@
+.git
+.github
+.gitignore
+README.md
+
+# Python 缓存
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 虚拟环境
+.venv
+venv
+env
+
+# 测试相关
+backend/tests/
+backend/tests/**/.pytest_cache
+.pytest_cache
+.coverage
+htmlcov
+
+# 数据目录
+backend/data/
+data/
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# 文档
+docs/
+
+# Node.js（如果有）
+node_modules

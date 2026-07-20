@@ -1,6 +1,7 @@
 fastapi[standard]==0.138.2
 sqlalchemy[asyncio]==2.0.51
 aiosqlite==0.20.0
+asyncpg==0.30.0
 pydantic[email]==2.13.4
 pydantic-settings==2.14.2
 langgraph==1.2.7

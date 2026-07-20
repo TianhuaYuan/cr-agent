@@ -103,29 +103,26 @@ async def _run_review_stream(
         workers_seen = set()
         WORKER_NAMES = {"worker_quality", "worker_security", "worker_performance", "worker_structure"}
 
-        # 先发 decompose 的 node_start
-        yield _sse_event("node_start", {"node": "decompose"})
-
         initial_state: dict = {"code": code, "language": language}
         if model_overrides:
             initial_state["model_overrides"] = model_overrides
+
+        started_nodes: set[str] = set()
 
         async for update in graph.astream(
             initial_state,
             stream_mode="updates",
         ):
             for node_name, node_output in update.items():
+                if node_name not in started_nodes:
+                    yield _sse_event("node_start", {"node": node_name})
+                    started_nodes.add(node_name)
+
                 if node_name == "decompose":
                     yield _sse_event("node_end", {"node": "decompose"})
-                    # 并行启动 4 个 Worker
-                    for w in WORKER_NAMES:
-                        yield _sse_event("node_start", {"node": w})
                 elif node_name in WORKER_NAMES:
                     workers_seen.add(node_name)
                     yield _sse_event("node_end", {"node": node_name})
-                    # 所有 Worker 完成 → 启动 aggregate
-                    if workers_seen == WORKER_NAMES:
-                        yield _sse_event("node_start", {"node": "aggregate"})
                 elif node_name == "aggregate":
                     yield _sse_event("node_end", {"node": "aggregate"})
                     report = (node_output or {}).get("report", "")

@@ -1030,6 +1030,182 @@ body {
   textarea { min-height: 120px; }
   .mode-btns { flex-wrap: wrap; }
 }
+
+/* ════════════════════════════════════════════════════════════
+   Token Input (顶部鉴权输入框)
+   ════════════════════════════════════════════════════════════ */
+.token-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.token-bar.hidden {
+  display: none;
+}
+.token-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.token-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.token-input:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+}
+.token-input::placeholder {
+  color: var(--text-dim);
+}
+.token-status {
+  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.token-status.ok {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+.token-status.fail {
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+/* ════════════════════════════════════════════════════════════
+   Model Selection Panel(模型配置面板)
+   ════════════════════════════════════════════════════════════ */
+.model-panel {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.model-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  user-select: none;
+  gap: var(--space-3);
+}
+
+.model-panel-header:hover {
+  background: var(--surface-2);
+}
+
+.model-panel-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.model-panel-toggle {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+
+.model-panel.open .model-panel-toggle {
+  transform: rotate(180deg);
+}
+
+.model-panel-body {
+  display: none;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.model-panel.open .model-panel-body {
+  display: block;
+}
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+@media (max-width: 768px) {
+  .model-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.model-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.model-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.model-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%239ca3af'%3E%3Cpath d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-2) center;
+  padding-right: var(--space-6);
+  transition: border-color 0.15s;
+}
+
+.model-select:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+}
+
+.model-select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.model-panel-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.model-panel-actions .btn {
+  font-size: 12px;
+  padding: var(--space-1) var(--space-3);
+}
 </style>
 </head>
 <body>
@@ -1047,6 +1223,21 @@ body {
       <button class="theme-toggle" id="btn-theme" title="切换主题" aria-label="切换主题">🌙</button>
     </div>
   </header>
+
+  <!-- Token 输入栏 -->
+  <div class="token-bar hidden" id="token-bar">
+    <label class="token-label">API Key</label>
+    <input
+      class="token-input"
+      id="token-input"
+      type="password"
+      placeholder="输入 admin API key 获取 token..."
+      autocomplete="off"
+    />
+    <button class="btn btn-primary" id="btn-get-token" title="获取 JWT token">获取 Token</button>
+    <button class="btn btn-ghost" id="btn-hide-token" title="隐藏">隐藏</button>
+    <span class="token-status hidden" id="token-status"></span>
+  </div>
 
   <!-- ─── Main ─── -->
   <main class="main" id="main">
@@ -1149,6 +1340,103 @@ body {
           </button>
         </div>
       </div>
+
+      <!-- 模型配置面板 -->
+      <div class="model-panel" id="model-panel">
+        <div class="model-panel-header" id="model-panel-header" role="button" aria-expanded="false">
+          <div class="model-panel-title">
+            <span>⚙️</span>
+            <span>模型配置（可选）</span>
+          </div>
+          <span class="model-panel-toggle">▼</span>
+        </div>
+        <div class="model-panel-body">
+          <div class="model-grid">
+            <div class="model-row">
+              <label class="model-label">任务拆解 (Decompose)</label>
+              <select class="model-select" id="model-decompose" data-key="decompose">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+            <div class="model-row">
+              <label class="model-label">代码质量 (Quality)</label>
+              <select class="model-select" id="model-worker-quality" data-key="worker.quality">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+            <div class="model-row">
+              <label class="model-label">安全审查 (Security)</label>
+              <select class="model-select" id="model-worker-security" data-key="worker.security">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+            <div class="model-row">
+              <label class="model-label">性能分析 (Performance)</label>
+              <select class="model-select" id="model-worker-performance" data-key="worker.performance">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+            <div class="model-row">
+              <label class="model-label">架构设计 (Structure)</label>
+              <select class="model-select" id="model-worker-structure" data-key="worker.structure">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+            <div class="model-row">
+              <label class="model-label">综合判断 (Judge)</label>
+              <select class="model-select" id="model-judge" data-key="judge">
+                <option value="">使用后端默认</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4">gpt-4</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                <option value="claude-3-opus">claude-3-opus</option>
+                <option value="claude-3-sonnet">claude-3-sonnet</option>
+                <option value="claude-3-haiku">claude-3-haiku</option>
+              </select>
+            </div>
+          </div>
+          <div class="model-panel-actions">
+            <button class="btn btn-ghost" id="btn-reset-models" title="重置为后端默认值">重置为默认</button>
+          </div>
+        </div>
+      </div>
+
       <div class="panel-body" style="padding:0; display:flex;">
         <textarea
           class="code-input"
@@ -1240,6 +1528,16 @@ const els = {
   evalView:      $("eval-view"),
   btnEvalRefresh: $("btn-eval-refresh"),
   evalModeSelect: $("eval-mode-select"),
+  // 模型配置面板
+  modelPanel:      $("model-panel"),
+  modelPanelHeader: $("model-panel-header"),
+  btnResetModels:  $("btn-reset-models"),
+  // Token 输入栏
+  tokenBar:        $("token-bar"),
+  tokenInput:      $("token-input"),
+  btnGetToken:     $("btn-get-token"),
+  btnHideToken:    $("btn-hide-token"),
+  tokenStatus:     $("token-status"),
 };
 
 let isRunning = false;
@@ -1253,6 +1551,8 @@ let evalMode = "rule_based"; // "rule_based" | "llm"
    ════════════════════════════════════════════════════════════ */
 const STORAGE_KEY_HISTORY = "cr-agent:history";
 const STORAGE_KEY_THEME   = "cr-agent:theme";
+const STORAGE_KEY_MODELS  = "cr-agent:model-overrides";
+const STORAGE_KEY_TOKEN   = "cr-agent:jwt-token";
 const MAX_HISTORY = 20;
 
 function loadHistory() {
@@ -1276,8 +1576,93 @@ function addHistory(entry) {
 }
 
 /* ════════════════════════════════════════════════════════════
-   主题切换
+   模型配置面板
    ════════════════════════════════════════════════════════════ */
+let defaultModels = null;
+
+async function loadDefaultModels() {
+  try {
+    const res = await fetch("/api/v1/models");
+    if (!res.ok) throw new Error("加载默认模型失败");
+    defaultModels = await res.json();
+  } catch (e) {
+    console.warn("无法加载默认模型:", e);
+    defaultModels = {};
+  }
+}
+
+function loadStoredModels() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_MODELS);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveStoredModels(models) {
+  try {
+    localStorage.setItem(STORAGE_KEY_MODELS, JSON.stringify(models));
+  } catch {}
+}
+
+function applyModelOverrides() {
+  const stored = loadStoredModels();
+  document.querySelectorAll(".model-select").forEach((select) => {
+    const key = select.dataset.key;
+    const value = stored[key] || "";
+    select.value = value;
+  });
+}
+
+function getModelOverrides() {
+  const overrides = {};
+  document.querySelectorAll(".model-select").forEach((select) => {
+    const key = select.dataset.key;
+    const value = select.value.trim();
+    if (value) {
+      overrides[key] = value;
+    }
+  });
+  return Object.keys(overrides).length > 0 ? overrides : null;
+}
+
+function resetModelsToDefault() {
+  document.querySelectorAll(".model-select").forEach((select) => {
+    select.value = "";
+  });
+  saveStoredModels({});
+}
+
+function toggleModelPanel() {
+  els.modelPanel.classList.toggle("open");
+  const isOpen = els.modelPanel.classList.contains("open");
+  els.modelPanelHeader.setAttribute("aria-expanded", String(isOpen));
+}
+
+function initModelPanel() {
+  loadDefaultModels();
+  applyModelOverrides();
+
+  els.modelPanelHeader.addEventListener("click", toggleModelPanel);
+
+  els.btnResetModels.addEventListener("click", (e) => {
+    e.stopPropagation();
+    resetModelsToDefault();
+  });
+
+  document.querySelectorAll(".model-select").forEach((select) => {
+    select.addEventListener("change", () => {
+      const overrides = {};
+      document.querySelectorAll(".model-select").forEach((s) => {
+        const key = s.dataset.key;
+        const value = s.value.trim();
+        if (value) {
+          overrides[key] = value;
+        }
+      });
+      saveStoredModels(overrides);
+    });
+  });
+}
 function getStoredTheme() {
   return localStorage.getItem(STORAGE_KEY_THEME) || "dark";
 }
@@ -1310,6 +1695,114 @@ function toggleTheme() {
 
 // 初始化主题(放最前面,避免闪)
 applyTheme(getStoredTheme());
+
+/* ════════════════════════════════════════════════════════════
+   Token 管理（JWT 鉴权）
+   ════════════════════════════════════════════════════════════ */
+let jwtToken = "";
+
+function loadStoredToken() {
+  try {
+    jwtToken = localStorage.getItem(STORAGE_KEY_TOKEN) || "";
+  } catch {
+    jwtToken = "";
+  }
+}
+
+function saveToken(token) {
+  jwtToken = token;
+  try {
+    localStorage.setItem(STORAGE_KEY_TOKEN, token);
+  } catch {}
+}
+
+function clearToken() {
+  jwtToken = "";
+  try {
+    localStorage.removeItem(STORAGE_KEY_TOKEN);
+  } catch {}
+}
+
+function getAuthHeaders() {
+  return jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+}
+
+function showTokenBar() {
+  els.tokenBar.classList.remove("hidden");
+}
+
+function hideTokenBar() {
+  els.tokenBar.classList.add("hidden");
+}
+
+function setTokenStatus(msg, isOk) {
+  els.tokenStatus.textContent = msg;
+  els.tokenStatus.classList.remove("hidden", "ok", "fail");
+  els.tokenStatus.classList.add(isOk ? "ok" : "fail");
+}
+
+async function fetchToken(apiKey) {
+  try {
+    const res = await fetch("/api/v1/auth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ api_key: apiKey }),
+    });
+    const data = await res.json();
+    if (res.ok && data.access_token) {
+      saveToken(data.access_token);
+      setTokenStatus("✅ Token 已保存", true);
+      setTimeout(() => els.tokenStatus.classList.add("hidden"), 3000);
+      return true;
+    } else {
+      setTokenStatus(`❌ ${data.detail || "获取失败"}`, false);
+      return false;
+    }
+  } catch (e) {
+    setTokenStatus("❌ 网络错误", false);
+    return false;
+  }
+}
+
+function initTokenBar() {
+  loadStoredToken();
+
+  els.btnGetToken.addEventListener("click", async () => {
+    const apiKey = els.tokenInput.value.trim();
+    if (!apiKey) {
+      setTokenStatus("❌ 请输入 API key", false);
+      return;
+    }
+    await fetchToken(apiKey);
+  });
+
+  els.btnHideToken.addEventListener("click", () => {
+    hideTokenBar();
+  });
+}
+
+// 401 检测：fetch 封装，自动处理 401
+async function authFetch(url, options = {}) {
+  const headers = {
+    ...options.headers,
+    ...getAuthHeaders(),
+  };
+  const res = await fetch(url, { ...options, headers });
+
+  if (res.status === 401) {
+    clearToken();
+    showTokenBar();
+    setTokenStatus("❌ Token 无效或过期，请重新获取", false);
+  }
+
+  return res;
+}
+
+// 初始化模型配置面板
+initModelPanel();
+
+// 初始化 Token 栏
+initTokenBar();
 
 /* ════════════════════════════════════════════════════════════
    侧栏折叠
@@ -1589,7 +2082,10 @@ async function submitReviewStream() {
       return;
     }
     apiUrl = "/api/v1/reviews/stream/from-pr";
-    body = JSON.stringify({ pr_url: prUrl });
+    const prBody = { pr_url: prUrl };
+    const modelOverrides = getModelOverrides();
+    if (modelOverrides) prBody.model_overrides = modelOverrides;
+    body = JSON.stringify(prBody);
   } else {
     code = els.code.value;
     language = els.lang.value;
@@ -1602,7 +2098,10 @@ async function submitReviewStream() {
       return;
     }
     apiUrl = "/api/v1/reviews/stream";
-    body = JSON.stringify({ code, language });
+    const codeBody = { code, language };
+    const modelOverrides = getModelOverrides();
+    if (modelOverrides) codeBody.model_overrides = modelOverrides;
+    body = JSON.stringify(codeBody);
   }
 
   setRunning(true);
@@ -1620,11 +2119,22 @@ async function submitReviewStream() {
   let retried = false;
 
   async function fetchAndStream() {
+    const headers = {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    };
     const res = await fetch(apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: body,
     });
+
+    if (res.status === 401) {
+      clearToken();
+      showTokenBar();
+      setTokenStatus("❌ Token 无效或过期，请重新获取", false);
+      throw new Error("401 Unauthorized: 请获取有效 token");
+    }
 
     if (!res.ok) {
       let detail = `${res.status} ${res.statusText}`;
@@ -1758,10 +2268,13 @@ async function submitReview() {
 
   const start = performance.now();
   try {
-    const res = await fetch("/api/v1/reviews", {
+    const body = { code, language };
+    const modelOverrides = getModelOverrides();
+    if (modelOverrides) body.model_overrides = modelOverrides;
+    const res = await authFetch("/api/v1/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, language }),
+      body: JSON.stringify(body),
     });
 
     const elapsed = ((performance.now() - start) / 1000).toFixed(1);

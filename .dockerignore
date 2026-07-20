@@ -22,8 +22,8 @@ backend/tests/**/.pytest_cache
 .coverage
 htmlcov
 
-# 数据目录（仅根目录 data/，backend/data/ 保留用于 LLM 预计算结果）
-data/
+# 数据目录（仅根目录 data/，用 /data/ 限定只匹配根目录）
+/data/
 
 # IDE
 .idea

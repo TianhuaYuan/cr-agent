@@ -15,8 +15,9 @@ __pycache__
 venv
 env
 
-# 测试相关
+# 测试相关（但保留 eval_samples 数据集，评测 API 需要它）
 backend/tests/
+!backend/tests/eval_samples/
 backend/tests/**/.pytest_cache
 .pytest_cache
 .coverage

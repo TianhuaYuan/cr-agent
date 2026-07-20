@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_DATASET = Path(__file__).resolve().parent.parent / "tests" / "eval_samples" / "dataset.json"
 
 # 预计算的 LLM-as-Judge 全量评测结果
-_LLM_PRECOMPUTED = Path(__file__).resolve().parent.parent.parent / "docs" / "tasks" / "eval_llm_full.json"
+_LLM_PRECOMPUTED = Path(__file__).resolve().parent.parent / "data" / "eval_llm_full.json"
 
 _cache: dict = {"data": None, "loaded_at": 0.0, "mode": None}
 

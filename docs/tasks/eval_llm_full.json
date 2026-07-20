@@ -1,0 +1,3285 @@
+{
+  "total": 26,
+  "composite_avg": 0.8628,
+  "prf_avg": {
+    "precision": 0.0858,
+    "recall": 0.8077,
+    "f1": 0.1537
+  },
+  "by_category": {
+    "security": {
+      "count": 7,
+      "composite_avg": 0.94,
+      "completeness_avg": 1.0,
+      "accuracy_avg": 0.8571,
+      "source_avg": 0.9857,
+      "prf": {
+        "precision": 0.08,
+        "recall": 0.8571,
+        "f1": 0.146
+      }
+    },
+    "quality": {
+      "count": 7,
+      "composite_avg": 0.8903,
+      "completeness_avg": 0.9429,
+      "accuracy_avg": 0.8329,
+      "source_avg": 0.9,
+      "prf": {
+        "precision": 0.1265,
+        "recall": 1.0,
+        "f1": 0.2228
+      }
+    },
+    "performance": {
+      "count": 6,
+      "composite_avg": 0.76,
+      "completeness_avg": 0.8167,
+      "accuracy_avg": 0.6583,
+      "source_avg": 0.85,
+      "prf": {
+        "precision": 0.0823,
+        "recall": 0.6667,
+        "f1": 0.1455
+      }
+    },
+    "structure": {
+      "count": 6,
+      "composite_avg": 0.8433,
+      "completeness_avg": 0.9833,
+      "accuracy_avg": 0.8417,
+      "source_avg": 0.5667,
+      "prf": {
+        "precision": 0.0485,
+        "recall": 0.6667,
+        "f1": 0.09
+      }
+    }
+  },
+  "per_sample": [
+    {
+      "id": "sec-001",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 1.0,
+        "composite": 1.0,
+        "rationale": "实际报告完全识别了期望的硬编码密钥问题，并准确标注了行号。它额外发现了更多问题，但核心发现与期望一致，无漏报、无错误、无行号错误。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "硬编码API密钥，存在严重安全风险，可能导致密钥泄露。",
+          "suggestion": "使用环境变量或配置文件存储API密钥，例如通过os.environ.get()获取。",
+          "code_snippet": "API_KEY = 'sk-live-1234567890abcdef'",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "硬编码的API密钥可能导致未授权访问和密钥泄露",
+          "suggestion": "将API密钥存储在环境变量或使用密钥管理服务（如AWS Secrets Manager）以避免硬编码",
+          "code_snippet": "API_KEY = 'sk-live-1234567890abcdef'",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "API密钥硬编码在代码中，可能导致敏感信息泄露和安全漏洞。",
+          "suggestion": "使用环境变量、配置文件或密钥管理服务（如Vault）来存储API密钥，避免在代码中直接暴露。",
+          "code_snippet": "API_KEY = 'sk-live-1234567890abcdef'",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "硬编码数据库密码，容易引发安全漏洞，不符合最佳实践。",
+          "suggestion": "从环境变量或安全的配置管理中读取密码，避免在代码中明文存储。",
+          "code_snippet": "DB_PASSWORD = 'admin123'",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "硬编码的数据库密码可能导致数据库未授权访问和数据泄露",
+          "suggestion": "使用环境变量或配置文件来安全存储数据库密码，避免在代码中直接暴露",
+          "code_snippet": "DB_PASSWORD = 'admin123'",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "数据库密码硬编码在代码中，存在严重安全风险，可能被未授权访问。",
+          "suggestion": "将数据库密码移至环境变量或安全的配置系统中，并使用加密或访问控制保护。",
+          "code_snippet": "DB_PASSWORD = 'admin123'",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "函数设计缺乏灵活性，硬编码连接字符串中的用户名和密码，不易于配置和测试。",
+          "suggestion": "修改函数以接受用户名和密码作为参数，或从配置中动态读取，例如def connect(username, password):。",
+          "code_snippet": "def connect():\n    return f'mysql://root:{DB_PASSWORD}@localhost/db'",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "函数connect直接返回硬编码的连接字符串，缺少配置抽象层，违反依赖倒置原则。",
+          "suggestion": "引入配置管理（如configparser或使用外部配置文件），使连接字符串可配置，并支持不同环境。",
+          "code_snippet": "def connect():\n    return f'mysql://root:{DB_PASSWORD}@localhost/db'",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "代码缺少必要的注释，特别是对于敏感数据的处理和函数用途说明。",
+          "suggestion": "添加注释解释变量用途、安全注意事项和函数功能，以提高代码可读性和维护性。",
+          "code_snippet": "整个代码片段",
+          "worker": "quality"
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "函数名`connect`较为通用，可能不够描述性，影响代码可读性。",
+          "suggestion": "考虑使用更具体的名称，如`get_database_connection_string`，以清晰表达函数功能。",
+          "code_snippet": "def connect():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "函数connect违反单一职责原则，它处理了连接字符串构建和密码管理，职责过多。",
+          "suggestion": "分离职责，例如创建一个独立的Config类或函数来处理配置管理，connect函数仅负责连接。",
+          "code_snippet": "def connect():\n    return f'mysql://root:{DB_PASSWORD}@localhost/db'",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0909,
+        "recall": 1.0,
+        "f1": 0.1667,
+        "tp": 1,
+        "fp": 10,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 11（高危: 6, 中危: 3, 低危: 2, 提示: 0）\n- **审查维度**: quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | 硬编码的API密钥可能导致未授权访问和密钥泄露 | 将API密钥存储在环境变量或使用密钥管理服务（如AWS Secrets Manager）以避免硬编码 | security |\n| 2 | 🔴 高危 | 硬编码的数据库密码可能导致数据库未授权访问和数据泄露 | 使用环境变量或配置文件来安全存储数据库密码，避免在代码中直接暴露 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | 硬编码API密钥，存在严重安全风险，可能导致密钥泄露。 | 使用环境变量或配置文件存储API密钥，例如通过os.environ.get()获取。 | quality |\n| 2 | 🔴 高危 | 硬编码数据库密码，容易引发安全漏洞，不符合最佳实践。 | 从环境变量或安全的配置管理中读取密码，避免在代码中明文存储。 | quality |\n| 3 | 🟡 中危 | 函数设计缺乏灵活性，硬编码连接字符串中的用户名和密码，不易于配置和测试。 | 修改函数以接受用户名和密码作为参数，或从配置中动态读取，例如def connect(username, password):。 | quality |\n| None | 🟡 中危 | 代码缺少必要的注释，特别是对于敏感数据的处理和函数用途说明。 | 添加注释解释变量用途、安全注意事项和函数功能，以提高代码可读性和维护性。 | quality |\n| 3 | 🟢 低危 | 函数名`connect`较为通用，可能不够描述性，影响代码可读性。 | 考虑使用更具体的名称，如`get_database_connection_string`，以清晰表达函数功能。 | quality |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | API密钥硬编码在代码中，可能导致敏感信息泄露和安全漏洞。 | 使用环境变量、配置文件或密钥管理服务（如Vault）来存储API密钥，避免在代码中直接暴露。 | structure |\n| 2 | 🔴 高危 | 数据库密码硬编码在代码中，存在严重安全风险，可能被未授权访问。 | 将数据库密码移至环境变量或安全的配置系统中，并使用加密或访问控制保护。 | structure |\n| 3 | 🟡 中危 | 函数connect直接返回硬编码的连接字符串，缺少配置抽象层，违反依赖倒置原则。 | 引入配置管理（如configparser或使用外部配置文件），使连接字符串可配置，并支持不同环境。 | structure |\n| 3 | 🟢 低危 | 函数connect违反单一职责原则，它处理了连接字符串构建和密码管理，职责过多。 | 分离职责，例如创建一个独立的Config类或函数来处理配置管理，connect函数仅负责连接。 | structure |\n"
+    },
+    {
+      "id": "sec-002",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 1.0,
+        "composite": 1.0,
+        "rationale": "实际报告准确识别了期望发现的SQL注入高危问题，描述正确且行号标注清晰，完全覆盖期望发现。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "SQL查询构建使用f-string直接插入用户输入，存在SQL注入漏洞，可能导致安全风险和性能问题（如恶意查询消耗资源）。",
+          "suggestion": "使用参数化查询或预编译语句来防止SQL注入，例如：cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd))",
+          "code_snippet": "sql = f\"SELECT * FROM users WHERE name='{user}' AND pw='{pwd}'\"",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "SQL query uses f-string to directly insert user input, which can lead to SQL injection attacks.",
+          "suggestion": "Use parameterized queries with cursor.execute(sql, (user, pwd)) to prevent SQL injection.",
+          "code_snippet": "sql = f\"SELECT * FROM users WHERE name='{user}' AND pw='{pwd}'\"",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "SQL injection vulnerability: User input is directly interpolated into SQL query string using f-string formatting, allowing potential injection attacks.",
+          "suggestion": "Use parameterized queries to separate SQL code from data. For example, cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd)).",
+          "code_snippet": "sql = f\"SELECT * FROM users WHERE name='{user}' AND pw='{pwd}'\"",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "使用f-string直接拼接用户输入到SQL查询中，导致SQL注入漏洞。",
+          "suggestion": "使用参数化查询，例如cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd))，或使用ORM框架避免SQL拼接。",
+          "code_snippet": "sql = f\"SELECT * FROM users WHERE name='{user}' AND pw='{pwd}'\"",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "Missing input validation: The function does not validate or sanitize the user and pwd parameters, which could be empty, too long, or contain malicious characters.",
+          "suggestion": "Add input validation to ensure parameters meet expected format (e.g., non-empty, length limits) and sanitize inputs before use in queries.",
+          "code_snippet": "def login(user, pwd):",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "Variable 'cursor' is used but not defined within the function, relying on external scope.",
+          "suggestion": "Pass 'cursor' as a parameter to the function to improve testability and avoid global state.",
+          "code_snippet": "cursor.execute(sql)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "缺少抽象层，硬编码了数据库操作，代码与具体数据库实现紧密耦合，违反了依赖抽象而非具体类的原则。",
+          "suggestion": "引入数据访问层或ORM（如SQLAlchemy），将数据访问逻辑封装在接口或类中，以提高可维护性和灵活性。",
+          "code_snippet": "cursor.execute(sql)  # 直接使用数据库游标执行SQL",
+          "worker": "structure"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数没有错误处理，可能未捕获数据库异常，导致程序崩溃或未处理的错误。",
+          "suggestion": "添加try-except块来处理异常，例如try: cursor.execute(sql) except Exception as e: 记录日志或返回错误信息。",
+          "code_snippet": "def login(user, pwd): ...",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "Parameter 'pwd' is an abbreviation; using full name 'password' improves readability.",
+          "suggestion": "Rename 'pwd' to 'password' for clarity.",
+          "code_snippet": "def login(user, pwd):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "登录函数直接处理数据库查询，混合了业务逻辑和数据访问逻辑，违反了单一职责原则。",
+          "suggestion": "将数据访问逻辑提取到单独的函数或类中，例如创建一个authenticate_user函数处理数据库交互，使login函数专注于业务流程。",
+          "code_snippet": "def login(user, pwd): ...",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "Function lacks a docstring explaining its purpose and parameters.",
+          "suggestion": "Add a docstring to document the function's behavior and parameters.",
+          "code_snippet": "def login(user, pwd):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0909,
+        "recall": 1.0,
+        "f1": 0.1667,
+        "tp": 1,
+        "fp": 10,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 11（高危: 4, 中危: 4, 低危: 2, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | SQL injection vulnerability: User input is directly interpolated into SQL query string using f-string formatting, allowing potential injection attacks. | Use parameterized queries to separate SQL code from data. For example, cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd)). | security |\n| 1 | 🟡 中危 | Missing input validation: The function does not validate or sanitize the user and pwd parameters, which could be empty, too long, or contain malicious characters. | Add input validation to ensure parameters meet expected format (e.g., non-empty, length limits) and sanitize inputs before use in queries. | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | SQL query uses f-string to directly insert user input, which can lead to SQL injection attacks. | Use parameterized queries with cursor.execute(sql, (user, pwd)) to prevent SQL injection. | quality |\n| 3 | 🟡 中危 | Variable 'cursor' is used but not defined within the function, relying on external scope. | Pass 'cursor' as a parameter to the function to improve testability and avoid global state. | quality |\n| 1 | 🟢 低危 | Parameter 'pwd' is an abbreviation; using full name 'password' improves readability. | Rename 'pwd' to 'password' for clarity. | quality |\n| 1 | ℹ️ 提示 | Function lacks a docstring explaining its purpose and parameters. | Add a docstring to document the function's behavior and parameters. | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | SQL查询构建使用f-string直接插入用户输入，存在SQL注入漏洞，可能导致安全风险和性能问题（如恶意查询消耗资源）。 | 使用参数化查询或预编译语句来防止SQL注入，例如：cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd)) | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 使用f-string直接拼接用户输入到SQL查询中，导致SQL注入漏洞。 | 使用参数化查询，例如cursor.execute('SELECT * FROM users WHERE name=? AND pw=?', (user, pwd))，或使用ORM框架避免SQL拼接。 | structure |\n| None | 🟡 中危 | 缺少抽象层，硬编码了数据库操作，代码与具体数据库实现紧密耦合，违反了依赖抽象而非具体类的原则。 | 引入数据访问层或ORM（如SQLAlchemy），将数据访问逻辑封装在接口或类中，以提高可维护性和灵活性。 | structure |\n| None | 🟡 中危 | 函数没有错误处理，可能未捕获数据库异常，导致程序崩溃或未处理的错误。 | 添加try-except块来处理异常，例如try: cursor.execute(sql) except Exception as e: 记录日志或返回错误信息。 | structure |\n| 1 | 🟢 低危 | 登录函数直接处理数据库查询，混合了业务逻辑和数据访问逻辑，违反了单一职责原则。 | 将数据访问逻辑提取到单独的函数或类中，例如创建一个authenticate_user函数处理数据库交互，使login函数专注于业务流程。 | structure |\n"
+    },
+    {
+      "id": "sec-003",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 1.0,
+        "composite": 1.0,
+        "rationale": "实际报告在安全审查部分准确、完整地覆盖了期望发现的核心问题（eval执行不可信输入），并提供了精确的行号追溯。报告中的其他发现虽超出期望范围，但并未影响对期望项的评价。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "使用eval函数执行任意表达式存在严重安全风险，可能导致代码注入攻击。",
+          "suggestion": "避免使用eval，考虑使用ast.literal_eval或自定义解析器来安全处理输入。",
+          "code_snippet": "return eval(expr)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "使用eval函数执行未校验的用户输入，允许任意Python代码执行，可能导致远程代码执行漏洞。",
+          "suggestion": "避免使用eval；如果必须执行表达式，应使用白名单机制严格校验输入，或采用安全替代方案如ast.literal_eval（仅用于字面量）或专门表达式解析库。",
+          "code_snippet": "return eval(expr)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "使用 eval 函数执行任意代码，存在严重的安全风险，可能导致代码注入攻击。",
+          "suggestion": "避免使用 eval。考虑使用 ast.literal_eval 来安全地解析字面值表达式，或者实现一个自定义的、受限的表达式解析器。",
+          "code_snippet": "def run(expr):\n    return eval(expr)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数'run'缺少文档字符串，不符合Python最佳实践，降低代码可维护性。",
+          "suggestion": "为函数添加docstring，描述其目的、参数和返回值，例如：\"\"\"Evaluate and return the result of the given expression.\"\"\"",
+          "code_snippet": "def run(expr):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名'run'不清晰，不描述其功能，违反命名规范中的清晰性原则。",
+          "suggestion": "重命名为更描述性的名称，如'evaluate_expression'，以提高代码可读性。",
+          "code_snippet": "def run(expr):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "缺少抽象层，直接硬编码使用 eval，违反了依赖反转原则。这使得代码难以测试和替换为更安全的实现。",
+          "suggestion": "定义一个接口或使用函数参数来注入表达式执行逻辑，例如通过一个可调用的对象或类来处理表达式执行。",
+          "code_snippet": "def run(expr):\n    return eval(expr)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "函数'handler'缺少文档字符串，不符合Python最佳实践，降低代码可维护性。",
+          "suggestion": "为函数添加docstring，描述其目的、参数和返回值，例如：\"\"\"Process the input data and execute the formula.\"\"\"",
+          "code_snippet": "def handler(data):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 5,
+          "description": "调用了 run 函数但忽略其返回值，导致表达式被计算却不使用结果，可能造成不必要的计算开销。",
+          "suggestion": "如果需要表达式结果，请在 handler 中使用返回值；否则，考虑移除该调用以避免浪费资源。",
+          "code_snippet": "run(data['formula'])",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "代码中缺乏错误处理机制。如果 data 字典中没有 'formula' 键，或者 eval 执行失败，会抛出未处理的异常。",
+          "suggestion": "添加 try-except 块来处理可能的异常，如 KeyError、SyntaxError、NameError 等。考虑在 handler 函数中验证输入数据。",
+          "code_snippet": "def handler(data):\n    run(data['formula'])",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "handler 函数同时负责数据处理和表达式执行，可能违反单一职责原则。",
+          "suggestion": "将数据验证和表达式执行分离到不同的函数中。例如，创建一个函数来验证 data 是否包含必要的键。",
+          "code_snippet": "def handler(data):\n    run(data['formula'])",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 4,
+          "description": "handler函数调用run但未处理返回值或潜在错误，可能导致静默失败。",
+          "suggestion": "添加错误处理机制，如try-except块，或考虑返回结果以便进一步处理。",
+          "code_snippet": "def handler(data):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0909,
+        "recall": 1.0,
+        "f1": 0.1667,
+        "tp": 1,
+        "fp": 10,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 11（高危: 3, 中危: 6, 低危: 2, 提示: 0）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 使用eval函数执行未校验的用户输入，允许任意Python代码执行，可能导致远程代码执行漏洞。 | 避免使用eval；如果必须执行表达式，应使用白名单机制严格校验输入，或采用安全替代方案如ast.literal_eval（仅用于字面量）或专门表达式解析库。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 使用eval函数执行任意表达式存在严重安全风险，可能导致代码注入攻击。 | 避免使用eval，考虑使用ast.literal_eval或自定义解析器来安全处理输入。 | quality |\n| 1 | 🟡 中危 | 函数'run'缺少文档字符串，不符合Python最佳实践，降低代码可维护性。 | 为函数添加docstring，描述其目的、参数和返回值，例如：\"\"\"Evaluate and return the result of the given expression.\"\"\" | quality |\n| 1 | 🟡 中危 | 函数名'run'不清晰，不描述其功能，违反命名规范中的清晰性原则。 | 重命名为更描述性的名称，如'evaluate_expression'，以提高代码可读性。 | quality |\n| 4 | 🟡 中危 | 函数'handler'缺少文档字符串，不符合Python最佳实践，降低代码可维护性。 | 为函数添加docstring，描述其目的、参数和返回值，例如：\"\"\"Process the input data and execute the formula.\"\"\" | quality |\n| 4 | 🟢 低危 | handler函数调用run但未处理返回值或潜在错误，可能导致静默失败。 | 添加错误处理机制，如try-except块，或考虑返回结果以便进一步处理。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 5 | 🟡 中危 | 调用了 run 函数但忽略其返回值，导致表达式被计算却不使用结果，可能造成不必要的计算开销。 | 如果需要表达式结果，请在 handler 中使用返回值；否则，考虑移除该调用以避免浪费资源。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 使用 eval 函数执行任意代码，存在严重的安全风险，可能导致代码注入攻击。 | 避免使用 eval。考虑使用 ast.literal_eval 来安全地解析字面值表达式，或者实现一个自定义的、受限的表达式解析器。 | structure |\n| 1 | 🟡 中危 | 缺少抽象层，直接硬编码使用 eval，违反了依赖反转原则。这使得代码难以测试和替换为更安全的实现。 | 定义一个接口或使用函数参数来注入表达式执行逻辑，例如通过一个可调用的对象或类来处理表达式执行。 | structure |\n| None | 🟡 中危 | 代码中缺乏错误处理机制。如果 data 字典中没有 'formula' 键，或者 eval 执行失败，会抛出未处理的异常。 | 添加 try-except 块来处理可能的异常，如 KeyError、SyntaxError、NameError 等。考虑在 handler 函数中验证输入数据。 | structure |\n| 3 | 🟢 低危 | handler 函数同时负责数据处理和表达式执行，可能违反单一职责原则。 | 将数据验证和表达式执行分离到不同的函数中。例如，创建一个函数来验证 data 是否包含必要的键。 | structure |\n"
+    },
+    {
+      "id": "sec-004",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.9,
+        "source_traceability": 0.9,
+        "composite": 0.94,
+        "rationale": "实际报告完全覆盖了期望发现的命令注入问题，但架构部分行号错误（标为3，应为4），且来源标注虽有行号但存在不准确之处。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "使用os.system执行shell命令时直接嵌入用户输入，存在命令注入漏洞。",
+          "suggestion": "使用shutil.copy函数进行文件复制，避免执行shell命令。或者如果必须使用subprocess，使用subprocess.run并避免shell=True。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "安全风险：使用os.system执行shell命令，用户输入name直接插入命令字符串，未经验证或转义，可能导致命令注入攻击。",
+          "suggestion": "使用shutil.copy或subprocess模块，并对输入进行验证或使用shlex.quote转义。例如，shutil.copy(name, '/backup/' + name)或subprocess.run(['cp', name, f'/backup/{name}'], check=True)。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "os.system函数调用中使用了未经过滤的用户输入，可能导致命令注入攻击。",
+          "suggestion": "使用subprocess模块或shutil模块来安全地执行文件复制操作。例如，使用shutil.copy(name, f'/backup/{name}')，并确保对输入进行路径校验。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "函数没有错误处理机制，os.system的返回值未检查，可能导致失败时无提示或未处理异常。",
+          "suggestion": "使用subprocess.run并检查返回码，或使用try-except块处理异常。",
+          "code_snippet": "def backup(name): os.system(f'cp {name} /backup/{name}')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "直接使用os.system执行系统命令，硬编码具体类，缺少抽象层，违反依赖接口而非具体类的原则。",
+          "suggestion": "使用Python标准库的shutil模块进行文件操作，提供跨平台兼容性和更好的抽象。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "性能效率问题：os.system执行shell命令，涉及进程创建和shell解析，可能比直接文件操作更慢，尤其在频繁调用时。",
+          "suggestion": "改用shutil模块进行文件复制，避免shell开销。例如，import shutil；shutil.copy(name, os.path.join('/backup', name))。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "使用cp命令，仅适用于Unix-like系统，在Windows上不可移植。",
+          "suggestion": "使用shutil.copy，它在不同操作系统上都能工作。",
+          "code_snippet": "os.system(f'cp {name} /backup/{name}')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "quality Worker LLM 响应解析失败",
+          "suggestion": "LLM 输出格式异常，请重试",
+          "code_snippet": "",
+          "worker": "quality"
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 8（高危: 3, 中危: 3, 低危: 1, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | os.system函数调用中使用了未经过滤的用户输入，可能导致命令注入攻击。 | 使用subprocess模块或shutil模块来安全地执行文件复制操作。例如，使用shutil.copy(name, f'/backup/{name}')，并确保对输入进行路径校验。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | ℹ️ 提示 | quality Worker LLM 响应解析失败 | LLM 输出格式异常，请重试 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 安全风险：使用os.system执行shell命令，用户输入name直接插入命令字符串，未经验证或转义，可能导致命令注入攻击。 | 使用shutil.copy或subprocess模块，并对输入进行验证或使用shlex.quote转义。例如，shutil.copy(name, '/backup/' + name)或subprocess.run(['cp', name, f'/backup/{name}'], check=True)。 | performance |\n| 4 | 🟡 中危 | 性能效率问题：os.system执行shell命令，涉及进程创建和shell解析，可能比直接文件操作更慢，尤其在频繁调用时。 | 改用shutil模块进行文件复制，避免shell开销。例如，import shutil；shutil.copy(name, os.path.join('/backup', name))。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 使用os.system执行shell命令时直接嵌入用户输入，存在命令注入漏洞。 | 使用shutil.copy函数进行文件复制，避免执行shell命令。或者如果必须使用subprocess，使用subprocess.run并避免shell=True。 | structure |\n| 3 | 🟡 中危 | 函数没有错误处理机制，os.system的返回值未检查，可能导致失败时无提示或未处理异常。 | 使用subprocess.run并检查返回码，或使用try-except块处理异常。 | structure |\n| 3 | 🟡 中危 | 直接使用os.system执行系统命令，硬编码具体类，缺少抽象层，违反依赖接口而非具体类的原则。 | 使用Python标准库的shutil模块进行文件操作，提供跨平台兼容性和更好的抽象。 | structure |\n| 3 | 🟢 低危 | 使用cp命令，仅适用于Unix-like系统，在Windows上不可移植。 | 使用shutil.copy，它在不同操作系统上都能工作。 | structure |\n\n## ⚠️ 审查警告\n\n- quality Worker LLM 响应解析失败\n"
+    },
+    {
+      "id": "sec-005",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.9,
+        "source_traceability": 1.0,
+        "composite": 0.96,
+        "rationale": "实际报告完全覆盖了期望发现的MD5弱哈希问题，并添加了相关建议；但严重度标注为'高危'，与期望的'中危'不一致；行号和来源标注清晰，便于追溯。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "使用MD5进行密码哈希，MD5已知不安全，易受碰撞攻击，不适合密码存储。",
+          "suggestion": "使用更安全的密码哈希算法如bcrypt、scrypt或Argon2。这些算法内置加盐和慢哈希机制，提高安全性。",
+          "code_snippet": "return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "密码哈希没有加盐，容易受到彩虹表攻击。",
+          "suggestion": "为每个密码生成唯一的随机盐，并将盐与哈希结果一起存储。例如，使用bcrypt自动生成盐。",
+          "code_snippet": "return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "使用弱哈希算法MD5进行密码哈希，不安全且易受碰撞攻击。",
+          "suggestion": "改用安全的密码哈希算法，如bcrypt、scrypt或Argon2。例如：使用`bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())`。",
+          "code_snippet": "hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "使用MD5哈希密码不安全，MD5算法容易受到碰撞攻击和彩虹表攻击，不适合存储密码。",
+          "suggestion": "使用更安全的密码哈希算法，如bcrypt、PBKDF2或scrypt。例如，使用hashlib.pbkdf2_hmac('sha256', pwd.encode(), salt, 100000)并添加盐值。",
+          "code_snippet": "return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "使用 MD5 算法进行密码哈希，MD5 是弱哈希算法，易受碰撞攻击和彩虹表攻击，不适合用于安全敏感场景如密码存储。",
+          "suggestion": "使用专为密码哈希设计的安全算法，如 bcrypt、scrypt 或 Argon2，并添加盐（salt）以增强安全性。",
+          "code_snippet": "return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "密码哈希过程中没有使用盐（salt），这使得相同密码产生相同哈希，容易受到彩虹表攻击和预计算攻击。",
+          "suggestion": "为每个密码生成唯一的随机盐，并将盐与哈希值一起存储，例如使用 bcrypt 自动处理盐或手动添加盐。",
+          "code_snippet": "return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数名`store_password`暗示存储密码，但实际只返回哈希值，可能导致误解。",
+          "suggestion": "重命名函数为`hash_password`或类似名称，以准确反映其功能。",
+          "code_snippet": "def store_password(pwd):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数缺少错误处理，如果pwd参数不是字符串或无法编码为字节，可能引发AttributeError或UnicodeEncodeError。",
+          "suggestion": "添加异常处理，例如使用try-except块捕获UnicodeEncodeError或类型检查，确保pwd是字符串或字节。",
+          "code_snippet": "def store_password(pwd):",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "哈希算法被硬编码，缺少抽象层，违反了开闭原则，使得更换或配置算法变得困难。",
+          "suggestion": "引入抽象层，例如定义哈希策略接口或通过配置参数允许动态指定算法，以提高可维护性和灵活性。",
+          "code_snippet": "hashlib.md5(pwd.encode())",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数缺少错误处理，如果输入pwd不是字符串或编码失败，会抛出异常。",
+          "suggestion": "添加类型检查和异常处理。例如，使用isinstance检查pwd是否为str，或使用try-except块处理UnicodeEncodeError。",
+          "code_snippet": "def store_password(pwd):\n    return hashlib.md5(pwd.encode()).hexdigest()",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "函数未处理输入可能不是字符串的情况，可能导致TypeError。",
+          "suggestion": "添加类型检查或异常处理，例如确保`pwd`是字符串类型。",
+          "code_snippet": "pwd.encode()",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数缺少必要的注释，未解释其用途、参数或返回值。",
+          "suggestion": "添加文档字符串（docstring）来描述函数功能、参数和返回值。例如：\"\"\"Hash the given password using MD5 and return the hex digest.\"\"\"",
+          "code_snippet": "def store_password(pwd):",
+          "worker": "quality"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数没有对输入密码参数进行校验，可能接受非字符串类型输入，导致运行时错误（如 AttributeError），影响代码健壮性。",
+          "suggestion": "添加输入校验，确保 pwd 是字符串类型，例如使用 isinstance(pwd, str) 检查，并考虑处理空值或异常情况。",
+          "code_snippet": "def store_password(pwd):",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": 2,
+          "description": "参数名`pwd`是缩写，可能不够清晰，影响代码可读性。",
+          "suggestion": "将参数名改为`password`以提高清晰度。",
+          "code_snippet": "def store_password(pwd):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0714,
+        "recall": 1.0,
+        "f1": 0.1333,
+        "tp": 1,
+        "fp": 13,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 14（高危: 6, 中危: 4, 低危: 3, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 使用 MD5 算法进行密码哈希，MD5 是弱哈希算法，易受碰撞攻击和彩虹表攻击，不适合用于安全敏感场景如密码存储。 | 使用专为密码哈希设计的安全算法，如 bcrypt、scrypt 或 Argon2，并添加盐（salt）以增强安全性。 | security |\n| 4 | 🔴 高危 | 密码哈希过程中没有使用盐（salt），这使得相同密码产生相同哈希，容易受到彩虹表攻击和预计算攻击。 | 为每个密码生成唯一的随机盐，并将盐与哈希值一起存储，例如使用 bcrypt 自动处理盐或手动添加盐。 | security |\n| None | 🟢 低危 | 函数没有对输入密码参数进行校验，可能接受非字符串类型输入，导致运行时错误（如 AttributeError），影响代码健壮性。 | 添加输入校验，确保 pwd 是字符串类型，例如使用 isinstance(pwd, str) 检查，并考虑处理空值或异常情况。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 使用弱哈希算法MD5进行密码哈希，不安全且易受碰撞攻击。 | 改用安全的密码哈希算法，如bcrypt、scrypt或Argon2。例如：使用`bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())`。 | quality |\n| 2 | 🟡 中危 | 函数名`store_password`暗示存储密码，但实际只返回哈希值，可能导致误解。 | 重命名函数为`hash_password`或类似名称，以准确反映其功能。 | quality |\n| 3 | 🟢 低危 | 函数未处理输入可能不是字符串的情况，可能导致TypeError。 | 添加类型检查或异常处理，例如确保`pwd`是字符串类型。 | quality |\n| None | 🟢 低危 | 函数缺少必要的注释，未解释其用途、参数或返回值。 | 添加文档字符串（docstring）来描述函数功能、参数和返回值。例如：\"\"\"Hash the given password using MD5 and return the hex digest.\"\"\" | quality |\n| 2 | ℹ️ 提示 | 参数名`pwd`是缩写，可能不够清晰，影响代码可读性。 | 将参数名改为`password`以提高清晰度。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 使用MD5进行密码哈希，MD5已知不安全，易受碰撞攻击，不适合密码存储。 | 使用更安全的密码哈希算法如bcrypt、scrypt或Argon2。这些算法内置加盐和慢哈希机制，提高安全性。 | performance |\n| 3 | 🔴 高危 | 密码哈希没有加盐，容易受到彩虹表攻击。 | 为每个密码生成唯一的随机盐，并将盐与哈希结果一起存储。例如，使用bcrypt自动生成盐。 | performance |\n| None | 🟡 中危 | 函数缺少错误处理，如果输入pwd不是字符串或编码失败，会抛出异常。 | 添加类型检查和异常处理。例如，使用isinstance检查pwd是否为str，或使用try-except块处理UnicodeEncodeError。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 使用MD5哈希密码不安全，MD5算法容易受到碰撞攻击和彩虹表攻击，不适合存储密码。 | 使用更安全的密码哈希算法，如bcrypt、PBKDF2或scrypt。例如，使用hashlib.pbkdf2_hmac('sha256', pwd.encode(), salt, 100000)并添加盐值。 | structure |\n| 2 | 🟡 中危 | 函数缺少错误处理，如果pwd参数不是字符串或无法编码为字节，可能引发AttributeError或UnicodeEncodeError。 | 添加异常处理，例如使用try-except块捕获UnicodeEncodeError或类型检查，确保pwd是字符串或字节。 | structure |\n| 3 | 🟡 中危 | 哈希算法被硬编码，缺少抽象层，违反了开闭原则，使得更换或配置算法变得困难。 | 引入抽象层，例如定义哈希策略接口或通过配置参数允许动态指定算法，以提高可维护性和灵活性。 | structure |\n"
+    },
+    {
+      "id": "sec-006",
+      "category": "security",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.7,
+        "source_traceability": 1.0,
+        "composite": 0.88,
+        "rationale": "实际报告覆盖了期望发现的安全问题（verify=False的中间人攻击风险），但严重度标记错误（高危而非中危）且行号不匹配（行3而非行4），影响准确性；所有问题均标注行号，追溯性良好。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "同步 HTTP 请求可能阻塞事件循环，如果用于异步上下文，导致性能瓶颈",
+          "suggestion": "使用异步 HTTP 客户端如 aiohttp，或确保在同步环境中使用",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "使用 `verify=False` 禁用SSL证书验证，可能导致安全风险，如中间人攻击。",
+          "suggestion": "移除 `verify=False` 或设置为 `verify=True` 以确保安全。如果确实需要禁用验证，请添加注释说明原因。",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "SSL certificate verification is disabled with verify=False, which may allow man-in-the-middle attacks.",
+          "suggestion": "Enable SSL verification by setting verify=True or providing a CA bundle path to ensure secure HTTPS connections.",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "禁用SSL证书验证（`verify=False`）存在严重安全风险，可能导致中间人攻击。",
+          "suggestion": "在生产环境中应始终验证SSL证书。如确需禁用，应通过环境变量或配置参数控制，并添加明确的注释或警告。",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "The url parameter lacks input validation, potentially leading to Server-Side Request Forgery (SSRF) if the url is untrusted.",
+          "suggestion": "Validate and sanitize the url input, using whitelisting or URL parsing to restrict allowed schemes and hosts.",
+          "code_snippet": "def fetch(url):",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "请求没有设置超时，可能导致长时间挂起和资源泄漏",
+          "suggestion": "在 requests.get 中添加 timeout 参数，例如 timeout=10",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "没有缓存机制，重复调用同一 URL 会导致不必要的 I/O 操作和资源浪费",
+          "suggestion": "添加缓存装饰器如 @functools.lru_cache 或实现自定义缓存",
+          "code_snippet": "def fetch(url):\n    return requests.get(url, verify=False)",
+          "worker": "performance"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数缺少任何错误处理，无法优雅地处理网络异常、HTTP错误状态码、超时等情况。",
+          "suggestion": "应捕获 `requests` 库可能抛出的异常（如 `ConnectionError`, `Timeout`, `HTTPError` 等），并考虑日志记录、重试逻辑或向调用方返回有意义的错误信息。",
+          "code_snippet": "def fetch(url):\n    return requests.get(url, verify=False)",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "硬编码了 `requests` 这个具体的HTTP库，违反了依赖倒置原则，使得切换为其他库（如 `httpx`, `urllib3`）或使用模拟（Mock）进行测试变得困难。",
+          "suggestion": "考虑将HTTP客户端注入函数，或使用一个更高层的抽象接口。如果当前规模很小且无需扩展，可记录此技术债。",
+          "code_snippet": "return requests.get(url, verify=False)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": 2,
+          "description": "函数缺少文档字符串（docstring），不符合PEP8代码风格指南。",
+          "suggestion": "添加文档字符串来描述函数的作用、参数和返回值。",
+          "code_snippet": "def fetch(url):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": 2,
+          "description": "函数名 'fetch' 过于通用，可能降低代码可读性和意图明确性。",
+          "suggestion": "重命名为更具体的名称，如 'fetch_url_content' 或 'download_data'，以清晰表达函数功能。",
+          "code_snippet": "def fetch(url):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 11,
+        "fn": 1
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 11（高危: 4, 中危: 4, 低危: 1, 提示: 2）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | SSL certificate verification is disabled with verify=False, which may allow man-in-the-middle attacks. | Enable SSL verification by setting verify=True or providing a CA bundle path to ensure secure HTTPS connections. | security |\n| 2 | 🟡 中危 | The url parameter lacks input validation, potentially leading to Server-Side Request Forgery (SSRF) if the url is untrusted. | Validate and sanitize the url input, using whitelisting or URL parsing to restrict allowed schemes and hosts. | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 使用 `verify=False` 禁用SSL证书验证，可能导致安全风险，如中间人攻击。 | 移除 `verify=False` 或设置为 `verify=True` 以确保安全。如果确实需要禁用验证，请添加注释说明原因。 | quality |\n| 2 | ℹ️ 提示 | 函数缺少文档字符串（docstring），不符合PEP8代码风格指南。 | 添加文档字符串来描述函数的作用、参数和返回值。 | quality |\n| 2 | ℹ️ 提示 | 函数名 'fetch' 过于通用，可能降低代码可读性和意图明确性。 | 重命名为更具体的名称，如 'fetch_url_content' 或 'download_data'，以清晰表达函数功能。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 同步 HTTP 请求可能阻塞事件循环，如果用于异步上下文，导致性能瓶颈 | 使用异步 HTTP 客户端如 aiohttp，或确保在同步环境中使用 | performance |\n| 3 | 🟡 中危 | 请求没有设置超时，可能导致长时间挂起和资源泄漏 | 在 requests.get 中添加 timeout 参数，例如 timeout=10 | performance |\n| None | 🟡 中危 | 没有缓存机制，重复调用同一 URL 会导致不必要的 I/O 操作和资源浪费 | 添加缓存装饰器如 @functools.lru_cache 或实现自定义缓存 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 禁用SSL证书验证（`verify=False`）存在严重安全风险，可能导致中间人攻击。 | 在生产环境中应始终验证SSL证书。如确需禁用，应通过环境变量或配置参数控制，并添加明确的注释或警告。 | structure |\n| None | 🟡 中危 | 函数缺少任何错误处理，无法优雅地处理网络异常、HTTP错误状态码、超时等情况。 | 应捕获 `requests` 库可能抛出的异常（如 `ConnectionError`, `Timeout`, `HTTPError` 等），并考虑日志记录、重试逻辑或向调用方返回有意义的错误信息。 | structure |\n| 3 | 🟢 低危 | 硬编码了 `requests` 这个具体的HTTP库，违反了依赖倒置原则，使得切换为其他库（如 `httpx`, `urllib3`）或使用模拟（Mock）进行测试变得困难。 | 考虑将HTTP客户端注入函数，或使用一个更高层的抽象接口。如果当前规模很小且无需扩展，可记录此技术债。 | structure |\n"
+    },
+    {
+      "id": "sec-007",
+      "category": "security",
+      "language": "javascript",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.5,
+        "source_traceability": 1.0,
+        "composite": 0.8,
+        "rationale": "实际报告完整覆盖了期望发现的问题（硬编码 API 密钥），且所有问题都标注了行号和来源；但报告在多个维度重复报告同一问题，且部分分类不正确（如将安全问题归为性能或架构问题），导致准确性降低。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "API密钥以明文形式硬编码在代码中，存在安全风险，可能导致密钥泄露和未授权访问。",
+          "suggestion": "将API密钥移至环境变量或使用安全的密钥管理服务，避免在源代码中暴露敏感信息。",
+          "code_snippet": "const apiKey = \"sk-live-abc123xyz\";",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "API key is hardcoded in the source code, which is a security risk as it could be exposed in version control or logs.",
+          "suggestion": "Store the API key in an environment variable or a secure secrets manager, and access it via process.env.API_KEY.",
+          "code_snippet": "const apiKey = \"sk-live-abc123xyz\";",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "硬编码的 API 密钥 'sk-live-abc123xyz' 暴露在代码中，可能导致未经授权的访问或泄露。",
+          "suggestion": "将 API 密钥移至环境变量或使用安全的密钥管理服务，例如通过 process.env.API_KEY 获取，并确保代码库不包含敏感信息。",
+          "code_snippet": "const apiKey = \"sk-live-abc123xyz\";",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "API密钥硬编码在源代码中，可能导致安全漏洞和维护问题，违反依赖反转原则。",
+          "suggestion": "使用环境变量或安全配置管理器来存储API密钥，避免硬编码，提高可维护性和安全性。",
+          "code_snippet": "const apiKey = \"sk-live-abc123xyz\";",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "callApi函数缺少缓存机制，每次调用都发起新的HTTP请求，可能导致重复的网络开销和性能瓶颈。",
+          "suggestion": "实现缓存策略，例如使用内存缓存或HTTP缓存头来存储和重用API响应，减少不必要的请求。",
+          "code_snippet": "function callApi(){ return fetch(\"https://api.example.com\", { headers: { Authorization: apiKey } }); }",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数callApi缺少错误处理机制，如处理网络错误或HTTP错误响应，导致错误处理散落。",
+          "suggestion": "添加错误处理，例如使用.catch()捕获Promise拒绝，或检查响应状态码，集中处理错误。",
+          "code_snippet": "function callApi(){ return fetch(\"https://api.example.com\", { headers: { Authorization: apiKey } }); }",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "The fetch call does not handle errors, which could lead to unhandled promise rejections and poor user experience.",
+          "suggestion": "Add a .catch() block or use async/await with try/catch to handle potential errors from the fetch operation.",
+          "code_snippet": "return fetch(\"https://api.example.com\", { headers: { Authorization: apiKey } });",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "The API endpoint URL is hardcoded, making the function inflexible for different environments or changes.",
+          "suggestion": "Pass the URL as a parameter to the function or use a configuration file/environment variable for the endpoint.",
+          "code_snippet": "fetch(\"https://api.example.com\", ...)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "API端点URL硬编码在函数中，不利于配置管理和环境切换，违反配置外部化原则。",
+          "suggestion": "将URL作为函数参数或从配置对象中读取，以提高灵活性和可测试性。",
+          "code_snippet": "return fetch(\"https://api.example.com\", { headers: { Authorization: apiKey } });",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 2,
+          "description": "The function lacks documentation comments, which could improve code readability and maintainability.",
+          "suggestion": "Add a JSDoc comment to describe the function's purpose, parameters, and return value.",
+          "code_snippet": "function callApi(){",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "直接依赖具体的fetch API，缺少抽象层，可能影响单元测试和替换，违反依赖反转原则。",
+          "suggestion": "引入一个API客户端抽象或使用依赖注入，使HTTP调用可替换，提高可测试性和模块化。",
+          "code_snippet": "return fetch(...);",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0909,
+        "recall": 1.0,
+        "f1": 0.1667,
+        "tp": 1,
+        "fp": 10,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: javascript\n- **问题总数**: 11（高危: 4, 中危: 5, 低危: 2, 提示: 0）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | 硬编码的 API 密钥 'sk-live-abc123xyz' 暴露在代码中，可能导致未经授权的访问或泄露。 | 将 API 密钥移至环境变量或使用安全的密钥管理服务，例如通过 process.env.API_KEY 获取，并确保代码库不包含敏感信息。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | API key is hardcoded in the source code, which is a security risk as it could be exposed in version control or logs. | Store the API key in an environment variable or a secure secrets manager, and access it via process.env.API_KEY. | quality |\n| 3 | 🟡 中危 | The fetch call does not handle errors, which could lead to unhandled promise rejections and poor user experience. | Add a .catch() block or use async/await with try/catch to handle potential errors from the fetch operation. | quality |\n| 3 | 🟡 中危 | The API endpoint URL is hardcoded, making the function inflexible for different environments or changes. | Pass the URL as a parameter to the function or use a configuration file/environment variable for the endpoint. | quality |\n| 2 | 🟢 低危 | The function lacks documentation comments, which could improve code readability and maintainability. | Add a JSDoc comment to describe the function's purpose, parameters, and return value. | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | API密钥以明文形式硬编码在代码中，存在安全风险，可能导致密钥泄露和未授权访问。 | 将API密钥移至环境变量或使用安全的密钥管理服务，避免在源代码中暴露敏感信息。 | performance |\n| 2 | 🟡 中危 | callApi函数缺少缓存机制，每次调用都发起新的HTTP请求，可能导致重复的网络开销和性能瓶颈。 | 实现缓存策略，例如使用内存缓存或HTTP缓存头来存储和重用API响应，减少不必要的请求。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | API密钥硬编码在源代码中，可能导致安全漏洞和维护问题，违反依赖反转原则。 | 使用环境变量或安全配置管理器来存储API密钥，避免硬编码，提高可维护性和安全性。 | structure |\n| 2 | 🟡 中危 | 函数callApi缺少错误处理机制，如处理网络错误或HTTP错误响应，导致错误处理散落。 | 添加错误处理，例如使用.catch()捕获Promise拒绝，或检查响应状态码，集中处理错误。 | structure |\n| 3 | 🟡 中危 | API端点URL硬编码在函数中，不利于配置管理和环境切换，违反配置外部化原则。 | 将URL作为函数参数或从配置对象中读取，以提高灵活性和可测试性。 | structure |\n| 3 | 🟢 低危 | 直接依赖具体的fetch API，缺少抽象层，可能影响单元测试和替换，违反依赖反转原则。 | 引入一个API客户端抽象或使用依赖注入，使HTTP调用可替换，提高可测试性和模块化。 | structure |\n"
+    },
+    {
+      "id": "q-001",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 0.9,
+        "composite": 0.98,
+        "rationale": "实际报告完全覆盖了期望发现中'函数过长需拆分'的核心问题（体现在架构维度的单一职责原则违反中），且所有问题描述准确无幻觉。大部分问题标注了具体行号，仅少数标注为'None'，来源可追溯性良好。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名 'process' 过于通用，未描述其具体功能，降低代码可读性",
+          "suggestion": "重命名为更具体的名称，如 'process_rows' 或 'calculate_results'，以反映其用途",
+          "code_snippet": "def process(data):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数缺少文档字符串和必要注释，未解释其目的、参数或返回值，不符合PEP8和良好编程实践",
+          "suggestion": "添加文档字符串描述函数功能，例如：\"\"\"Process input data and return calculated results.\"\"\"，并在复杂逻辑处添加注释",
+          "code_snippet": "def process(data):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "使用单字母变量名如 'a', 'b', 'c' 等，命名不清晰，不符合Python编码惯例，降低可维护性",
+          "suggestion": "重命名为有意义的名称，例如 'input_a', 'input_b', 'sum_ab', 'doubled_sum' 等，以增强可读性",
+          "code_snippet": "a = row['a']\nb = row['b']\nc = a + b\nd = c * 2\ne = d - 1\nf = e / 2\ng = f ** 2",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "缺少对输入参数 data 的校验。代码假设 data 是列表，每个元素是字典且包含键 'a' 和 'b'，但未验证。如果输入格式不正确，可能引发 KeyError 或 TypeError，导致程序崩溃或未处理异常。",
+          "suggestion": "添加输入校验：检查 data 是否为列表，并确保每个 row 是字典且包含 'a' 和 'b' 键，值是数字类型。例如：if not isinstance(data, list): return []; for row in data: if not isinstance(row, dict) or 'a' not in row or 'b' not in row: continue; 或者使用 try-except 块处理异常。",
+          "code_snippet": "a = row['a']\nb = row['b']",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "缺少错误处理；代码假设输入字典具有 'a' 和 'b' 键，可能导致 KeyError 或类型错误，影响鲁棒性。",
+          "suggestion": "使用 dict.get() 方法提供默认值或添加 try-except 块来处理异常，例如：a = row.get('a', 0); b = row.get('b', 0)。",
+          "code_snippet": "a = row['a']\nb = row['b']",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数 process 违反了单一职责原则，它同时处理数据提取、核心计算和条件逻辑附加，导致职责过多。",
+          "suggestion": "将计算逻辑和条件附加逻辑分离成单独的函数。例如，创建一个 compute_g(row) 函数计算 g，另一个 append_results(result, g) 函数根据条件添加结果。",
+          "code_snippet": "def process(data):\n    result = []\n    for row in data:\n        a = row['a']\n        b = row['b']\n        c = a + b\n        d = c * 2\n        e = d - 1\n        f = e / 2\n        g = f ** 2\n        result.append(g)\n        if g > 10:\n            result.append(g * 3)\n        else:\n            result.append(g / 3)\n        if g > 100:\n            result.append(g * 10)\n    return result",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数包含嵌套条件语句，逻辑复杂度较高，可能影响可读性和可维护性",
+          "suggestion": "考虑重构为更小的辅助函数，或使用列表推导式简化逻辑；例如，将条件追加操作提取为单独函数",
+          "code_snippet": "if g > 10:\n    result.append(g * 3)\nelse:\n    result.append(g / 3)\nif g > 100:\n    result.append(g * 10)",
+          "worker": "quality"
+        }
+      ],
+      "prf": {
+        "precision": 0.1429,
+        "recall": 1.0,
+        "f1": 0.25,
+        "tp": 1,
+        "fp": 6,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 7（高危: 0, 中危: 6, 低危: 1, 提示: 0）\n- **审查维度**: quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🟡 中危 | 缺少对输入参数 data 的校验。代码假设 data 是列表，每个元素是字典且包含键 'a' 和 'b'，但未验证。如果输入格式不正确，可能引发 KeyError 或 TypeError，导致程序崩溃或未处理异常。 | 添加输入校验：检查 data 是否为列表，并确保每个 row 是字典且包含 'a' 和 'b' 键，值是数字类型。例如：if not isinstance(data, list): return []; for row in data: if not isinstance(row, dict) or 'a' not in row or 'b' not in row: continue; 或者使用 try-except 块处理异常。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 函数名 'process' 过于通用，未描述其具体功能，降低代码可读性 | 重命名为更具体的名称，如 'process_rows' 或 'calculate_results'，以反映其用途 | quality |\n| 1 | 🟡 中危 | 函数缺少文档字符串和必要注释，未解释其目的、参数或返回值，不符合PEP8和良好编程实践 | 添加文档字符串描述函数功能，例如：\"\"\"Process input data and return calculated results.\"\"\"，并在复杂逻辑处添加注释 | quality |\n| 4 | 🟡 中危 | 使用单字母变量名如 'a', 'b', 'c' 等，命名不清晰，不符合Python编码惯例，降低可维护性 | 重命名为有意义的名称，例如 'input_a', 'input_b', 'sum_ab', 'doubled_sum' 等，以增强可读性 | quality |\n| None | 🟢 低危 | 函数包含嵌套条件语句，逻辑复杂度较高，可能影响可读性和可维护性 | 考虑重构为更小的辅助函数，或使用列表推导式简化逻辑；例如，将条件追加操作提取为单独函数 | quality |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🟡 中危 | 缺少错误处理；代码假设输入字典具有 'a' 和 'b' 键，可能导致 KeyError 或类型错误，影响鲁棒性。 | 使用 dict.get() 方法提供默认值或添加 try-except 块来处理异常，例如：a = row.get('a', 0); b = row.get('b', 0)。 | structure |\n| None | 🟡 中危 | 函数 process 违反了单一职责原则，它同时处理数据提取、核心计算和条件逻辑附加，导致职责过多。 | 将计算逻辑和条件附加逻辑分离成单独的函数。例如，创建一个 compute_g(row) 函数计算 g，另一个 append_results(result, g) 函数根据条件添加结果。 | structure |\n"
+    },
+    {
+      "id": "q-002",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.8,
+        "source_traceability": 1.0,
+        "composite": 0.92,
+        "rationale": "实际报告完全覆盖了期望发现的魔法数字问题，并在架构部分正确标注行号2，但错误地将该问题归类为structure（期望为quality），导致准确性扣分。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "使用同步阻塞调用 time.sleep(42) 会暂停线程执行42秒，在异步或高并发环境中可能导致性能瓶颈、资源浪费和事件循环阻塞。",
+          "suggestion": "如果函数在异步上下文中使用，替换为 asyncio.sleep(42)。如果必须延迟，考虑缩短时间或使用非阻塞替代方案（如基于回调的延迟）。",
+          "code_snippet": "time.sleep(42)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "Missing import statement for 'time' module, which will cause a NameError at runtime.",
+          "suggestion": "Add 'import time' at the beginning of the file to ensure the code executes correctly.",
+          "code_snippet": "time.sleep(42)",
+          "worker": "quality"
+        },
+        {
+          "severity": "high",
+          "line": "3",
+          "description": "函数调用 retry 但未定义或导入，可能导致 NameError 异常。",
+          "suggestion": "确保 retry 函数已正确定义或从模块中导入。",
+          "code_snippet": "retry(7, 3)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "调用了未定义的函数 retry，可能引发运行时错误，影响代码稳定性和性能。",
+          "suggestion": "确保 retry 函数已正确导入或定义。如果它是重试逻辑，检查其内部是否有性能问题（如循环或阻塞操作），并优化实现。",
+          "code_snippet": "retry(7, 3)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": "1",
+          "description": "函数 delay 执行了多个不相关的操作：休眠、重试配置和设置超时，违反了单一职责原则。",
+          "suggestion": "将函数拆分为更小的函数，例如一个用于休眠，一个用于处理重试逻辑。",
+          "code_snippet": "def delay():\n    time.sleep(42)\n    retry(7, 3)\n    timeout = 86400",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": "3",
+          "description": "retry 函数调用没有错误处理机制，如果重试逻辑失败，可能导致未处理的异常。",
+          "suggestion": "添加 try-except 块来捕获和处理可能的异常，或者确保 retry 函数内部处理错误。",
+          "code_snippet": "retry(7, 3)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 4,
+          "description": "定义了变量 timeout 但未使用，可能导致代码冗余和不必要的内存占用。",
+          "suggestion": "移除未使用的变量 timeout，或确保在其他地方引用它以避免浪费。",
+          "code_snippet": "timeout = 86400",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 4,
+          "description": "Variable 'timeout' is assigned but never used, which violates PEP8's warning for unused variables.",
+          "suggestion": "Remove the unused assignment or integrate the variable into the function logic.",
+          "code_snippet": "timeout = 86400",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "Magic numbers (42, 7, 3) are used without explanation or constants, reducing code readability and maintainability.",
+          "suggestion": "Define named constants for these values (e.g., SLEEP_DURATION, RETRY_ATTEMPTS, RETRY_DELAY) or add comments to clarify their meaning.",
+          "code_snippet": "time.sleep(42) and retry(7, 3)",
+          "worker": "quality"
+        },
+        {
+          "severity": "low",
+          "line": "1",
+          "description": "函数名为 delay，但实际执行了重试和超时设置，可能导致调用者误解其功能。",
+          "suggestion": "重命名函数以更准确地反映其职责，例如 delay_with_retry 或类似名称。",
+          "code_snippet": "def delay():",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": "2",
+          "description": "函数中的数字值（如42, 7, 3, 86400）是硬编码的，降低了代码的灵活性和可维护性。",
+          "suggestion": "将这些值参数化为函数参数或定义为常量，以提高代码的可配置性。",
+          "code_snippet": "time.sleep(42)\nretry(7, 3)\ntimeout = 86400",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": "4",
+          "description": "变量 timeout 被赋值但未在函数中使用，这可能导致代码混淆和资源浪费。",
+          "suggestion": "移除未使用的变量或确保它在后续逻辑中使用。",
+          "code_snippet": "timeout = 86400",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Function 'delay' lacks a docstring, making it unclear what its purpose is or how it should be used.",
+          "suggestion": "Add a docstring at the start of the function to describe its behavior, parameters, and any side effects.",
+          "code_snippet": "def delay():",
+          "worker": "quality"
+        }
+      ],
+      "prf": {
+        "precision": 0.0769,
+        "recall": 1.0,
+        "f1": 0.1429,
+        "tp": 1,
+        "fp": 12,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 13（高危: 3, 中危: 3, 低危: 6, 提示: 1）\n- **审查维度**: performance, quality, structure\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | Missing import statement for 'time' module, which will cause a NameError at runtime. | Add 'import time' at the beginning of the file to ensure the code executes correctly. | quality |\n| 4 | 🟢 低危 | Variable 'timeout' is assigned but never used, which violates PEP8's warning for unused variables. | Remove the unused assignment or integrate the variable into the function logic. | quality |\n| None | 🟢 低危 | Magic numbers (42, 7, 3) are used without explanation or constants, reducing code readability and maintainability. | Define named constants for these values (e.g., SLEEP_DURATION, RETRY_ATTEMPTS, RETRY_DELAY) or add comments to clarify their meaning. | quality |\n| None | ℹ️ 提示 | Function 'delay' lacks a docstring, making it unclear what its purpose is or how it should be used. | Add a docstring at the start of the function to describe its behavior, parameters, and any side effects. | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 使用同步阻塞调用 time.sleep(42) 会暂停线程执行42秒，在异步或高并发环境中可能导致性能瓶颈、资源浪费和事件循环阻塞。 | 如果函数在异步上下文中使用，替换为 asyncio.sleep(42)。如果必须延迟，考虑缩短时间或使用非阻塞替代方案（如基于回调的延迟）。 | performance |\n| 3 | 🟡 中危 | 调用了未定义的函数 retry，可能引发运行时错误，影响代码稳定性和性能。 | 确保 retry 函数已正确导入或定义。如果它是重试逻辑，检查其内部是否有性能问题（如循环或阻塞操作），并优化实现。 | performance |\n| 4 | 🟢 低危 | 定义了变量 timeout 但未使用，可能导致代码冗余和不必要的内存占用。 | 移除未使用的变量 timeout，或确保在其他地方引用它以避免浪费。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 函数调用 retry 但未定义或导入，可能导致 NameError 异常。 | 确保 retry 函数已正确定义或从模块中导入。 | structure |\n| 1 | 🟡 中危 | 函数 delay 执行了多个不相关的操作：休眠、重试配置和设置超时，违反了单一职责原则。 | 将函数拆分为更小的函数，例如一个用于休眠，一个用于处理重试逻辑。 | structure |\n| 3 | 🟡 中危 | retry 函数调用没有错误处理机制，如果重试逻辑失败，可能导致未处理的异常。 | 添加 try-except 块来捕获和处理可能的异常，或者确保 retry 函数内部处理错误。 | structure |\n| 1 | 🟢 低危 | 函数名为 delay，但实际执行了重试和超时设置，可能导致调用者误解其功能。 | 重命名函数以更准确地反映其职责，例如 delay_with_retry 或类似名称。 | structure |\n| 2 | 🟢 低危 | 函数中的数字值（如42, 7, 3, 86400）是硬编码的，降低了代码的灵活性和可维护性。 | 将这些值参数化为函数参数或定义为常量，以提高代码的可配置性。 | structure |\n| 4 | 🟢 低危 | 变量 timeout 被赋值但未在函数中使用，这可能导致代码混淆和资源浪费。 | 移除未使用的变量或确保它在后续逻辑中使用。 | structure |\n"
+    },
+    {
+      "id": "q-003",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 0.6,
+        "accuracy": 0.8,
+        "source_traceability": 1.0,
+        "composite": 0.76,
+        "rationale": "实际报告部分覆盖了变量命名问题，但只针对 d, tmp, xx，漏掉了 a, b, c 的命名；变量命名严重度被错误地标记为中危，而期望为低危；报告提供了行号，便于追溯。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名'f'不具描述性，不符合清晰命名规范。",
+          "suggestion": "重命名为更具描述性的名称，例如'calculate_result'或'compute_value'，以反映函数功能。",
+          "code_snippet": "def f(a, b, c):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "变量名'd', 'tmp', 'xx'不清晰，难以理解其用途，降低代码可读性。",
+          "suggestion": "使用有意义的变量名，例如'sum_ab', 'product', 'result'，以增强代码自文档性。",
+          "code_snippet": "d = a + b\ntmp = d * c\nxx = tmp / 2",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少文档字符串，未说明其功能、参数和返回值。",
+          "suggestion": "在函数定义后添加文档字符串，例如：'''计算(a+b)*c/2的结果。参数：a, b, c为数字，返回计算结果。'''",
+          "code_snippet": "def f(a, b, c):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少输入校验，参数a, b, c没有进行类型或值范围检查，可能导致运行时错误（如TypeError、ZeroDivisionError）或意外行为，如果参数来自不可信用户输入。",
+          "suggestion": "添加输入校验，例如使用isinstance(a, (int, float))检查参数类型，或使用try-except块处理可能的异常；确保参数为数值类型，并在必要时验证值范围。",
+          "code_snippet": "def f(a, b, c):\n    d = a + b\n    tmp = d * c\n    xx = tmp / 2\n    return xx",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数缺少错误处理机制，如果输入参数a、b、c不是数字类型，将导致TypeError异常，影响健壮性。",
+          "suggestion": "添加输入验证或异常处理，例如使用try-except块捕获TypeError，或使用isinstance检查参数类型。",
+          "code_snippet": "def f(a, b, c):\n    d = a + b\n    tmp = d * c\n    xx = tmp / 2\n    return xx",
+          "worker": "structure"
+        }
+      ],
+      "prf": {
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.3333,
+        "tp": 1,
+        "fp": 4,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 5（高危: 0, 中危: 2, 低危: 3, 提示: 0）\n- **审查维度**: quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟢 低危 | 函数缺少输入校验，参数a, b, c没有进行类型或值范围检查，可能导致运行时错误（如TypeError、ZeroDivisionError）或意外行为，如果参数来自不可信用户输入。 | 添加输入校验，例如使用isinstance(a, (int, float))检查参数类型，或使用try-except块处理可能的异常；确保参数为数值类型，并在必要时验证值范围。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 函数名'f'不具描述性，不符合清晰命名规范。 | 重命名为更具描述性的名称，例如'calculate_result'或'compute_value'，以反映函数功能。 | quality |\n| 2 | 🟡 中危 | 变量名'd', 'tmp', 'xx'不清晰，难以理解其用途，降低代码可读性。 | 使用有意义的变量名，例如'sum_ab', 'product', 'result'，以增强代码自文档性。 | quality |\n| 1 | 🟢 低危 | 函数缺少文档字符串，未说明其功能、参数和返回值。 | 在函数定义后添加文档字符串，例如：'''计算(a+b)*c/2的结果。参数：a, b, c为数字，返回计算结果。''' | quality |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟢 低危 | 函数缺少错误处理机制，如果输入参数a、b、c不是数字类型，将导致TypeError异常，影响健壮性。 | 添加输入验证或异常处理，例如使用try-except块捕获TypeError，或使用isinstance检查参数类型。 | structure |\n"
+    },
+    {
+      "id": "q-004",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.95,
+        "source_traceability": 0.8,
+        "composite": 0.94,
+        "rationale": "期望发现（重复代码问题）被实际报告完全覆盖，描述和severity匹配；但行号未指定为期望的line 1，导致轻微准确性偏差；实际报告标注了行号（部分为'None'），但为重复代码问题提供清晰描述，追溯性尚可。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数 report_a 和 report_b 功能完全相同，导致代码重复，增加维护成本。",
+          "suggestion": "合并重复代码为一个通用函数，或使用参数来区分行为。例如，定义一个函数 calculate_total(rows) 并根据需要调用。",
+          "code_snippet": "def report_a(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total\ndef report_b(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total",
+          "worker": "quality"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数 `report_a` 和 `report_b` 包含完全相同的实现逻辑，这违反了“不要重复自己”（DRY）原则。",
+          "suggestion": "提取一个公共函数 `calculate_total(rows, key='amt')` 来处理累加逻辑，并让 `report_a` 和 `report_b` 调用该函数。或者，如果这两个函数在业务上本质上是同一个功能，应考虑合并或明确重命名以反映其独特用途。",
+          "code_snippet": "def report_a(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total\n\ndef report_b(rows):\n    total = 0\n    for r in rows:\n        total += r['amt']\n    return total",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少文档字符串，不符合PEP8推荐，降低代码可读性和维护性。",
+          "suggestion": "为每个函数添加docstring，描述其目的和参数。例如：\"Calculate total amount from rows.\"",
+          "code_snippet": "def report_a(rows):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "Missing input validation for 'rows' parameter; accessing 'amt' key without checking existence or type, which could lead to KeyError or TypeError if input is malformed.",
+          "suggestion": "Add validation to ensure 'rows' is a list and each element is a dictionary with an 'amt' key, e.g., using isinstance checks or try-except blocks.",
+          "code_snippet": "for r in rows: total += r['amt']",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 7,
+          "description": "顶层函数定义之间缺少必要的空行。PEP8要求两个空行以分隔函数定义。",
+          "suggestion": "在函数 report_a 和 report_b 之间添加两个空行。",
+          "code_snippet": "return total\n\ndef report_b(rows):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 9,
+          "description": "Missing input validation for 'rows' parameter; accessing 'amt' key without checking existence or type, which could lead to KeyError or TypeError if input is malformed.",
+          "suggestion": "Add validation to ensure 'rows' is a list and each element is a dictionary with an 'amt' key, e.g., using isinstance checks or try-except blocks.",
+          "code_snippet": "for r in rows: total += r['amt']",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "手动循环求和可能效率较低，Python内置sum函数使用C实现，通常更快，尤其在处理大型列表时。",
+          "suggestion": "将函数中的循环替换为total = sum(r['amt'] for r in rows)，以利用内置优化。",
+          "code_snippet": "for r in rows:\n    total += r['amt']",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数没有对输入参数 `rows` 进行任何验证（如是否为 `None`，是否是可迭代对象，以及每个元素 `r` 是否包含所需的 `'amt'` 键）。这可能导致运行时 `TypeError` 或 `KeyError` 异常，且错误信息不友好。",
+          "suggestion": "在函数开头添加参数验证或使用 `try...except` 块来捕获并处理可能的异常，提供更清晰的错误消息。",
+          "code_snippet": "def report_a(rows):\n    total = 0\n    for r in rows:",
+          "worker": "structure"
+        },
+        {
+          "severity": "info",
+          "line": 3,
+          "description": "循环变量 'r' 不够描述性，可能影响代码可读性和意图表达。",
+          "suggestion": "将 'r' 重命名为 'row' 以更清晰表示其含义。",
+          "code_snippet": "for r in rows:",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "函数名 `report_a` 和 `report_b` 过于模糊，不能清晰表达函数的具体职责（例如，是计算哪种报告的总额？）。这降低了代码的可读性和可维护性。",
+          "suggestion": "使用更具描述性的名称，例如 `calculate_total_amount_a` 或 `get_grand_total`，以明确说明函数的用途。",
+          "code_snippet": "def report_a(rows):",
+          "worker": "structure"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "函数隐式地依赖于输入 `rows` 的元素是字典且包含 `'amt'` 键这一特定结构。这是一种“隐式接口”，增加了代码的耦合度。虽然在当前简单场景下不明显，但随着系统复杂化，这可能成为维护问题。",
+          "suggestion": "可以通过定义数据模型类（如使用 `dataclasses` 或 `typing.NamedTuple`）或使用类型提示（如 `List[Dict[str, Any]]`）来使接口显式化。如果数据结构变化频繁，可以考虑引入一个抽象层或适配器来隔离变化。",
+          "code_snippet": "def report_a(rows):",
+          "worker": "structure"
+        }
+      ],
+      "prf": {
+        "precision": 0.0909,
+        "recall": 1.0,
+        "f1": 0.1667,
+        "tp": 1,
+        "fp": 10,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 11（高危: 0, 中危: 2, 低危: 6, 提示: 3）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🟢 低危 | Missing input validation for 'rows' parameter; accessing 'amt' key without checking existence or type, which could lead to KeyError or TypeError if input is malformed. | Add validation to ensure 'rows' is a list and each element is a dictionary with an 'amt' key, e.g., using isinstance checks or try-except blocks. | security |\n| 9 | 🟢 低危 | Missing input validation for 'rows' parameter; accessing 'amt' key without checking existence or type, which could lead to KeyError or TypeError if input is malformed. | Add validation to ensure 'rows' is a list and each element is a dictionary with an 'amt' key, e.g., using isinstance checks or try-except blocks. | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 函数 report_a 和 report_b 功能完全相同，导致代码重复，增加维护成本。 | 合并重复代码为一个通用函数，或使用参数来区分行为。例如，定义一个函数 calculate_total(rows) 并根据需要调用。 | quality |\n| 1 | 🟢 低危 | 函数缺少文档字符串，不符合PEP8推荐，降低代码可读性和维护性。 | 为每个函数添加docstring，描述其目的和参数。例如：\"Calculate total amount from rows.\" | quality |\n| 7 | 🟢 低危 | 顶层函数定义之间缺少必要的空行。PEP8要求两个空行以分隔函数定义。 | 在函数 report_a 和 report_b 之间添加两个空行。 | quality |\n| 3 | ℹ️ 提示 | 循环变量 'r' 不够描述性，可能影响代码可读性和意图表达。 | 将 'r' 重命名为 'row' 以更清晰表示其含义。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟢 低危 | 手动循环求和可能效率较低，Python内置sum函数使用C实现，通常更快，尤其在处理大型列表时。 | 将函数中的循环替换为total = sum(r['amt'] for r in rows)，以利用内置优化。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 函数 `report_a` 和 `report_b` 包含完全相同的实现逻辑，这违反了“不要重复自己”（DRY）原则。 | 提取一个公共函数 `calculate_total(rows, key='amt')` 来处理累加逻辑，并让 `report_a` 和 `report_b` 调用该函数。或者，如果这两个函数在业务上本质上是同一个功能，应考虑合并或明确重命名以反映其独特用途。 | structure |\n| None | 🟢 低危 | 函数没有对输入参数 `rows` 进行任何验证（如是否为 `None`，是否是可迭代对象，以及每个元素 `r` 是否包含所需的 `'amt'` 键）。这可能导致运行时 `TypeError` 或 `KeyError` 异常，且错误信息不友好。 | 在函数开头添加参数验证或使用 `try...except` 块来捕获并处理可能的异常，提供更清晰的错误消息。 | structure |\n| None | ℹ️ 提示 | 函数名 `report_a` 和 `report_b` 过于模糊，不能清晰表达函数的具体职责（例如，是计算哪种报告的总额？）。这降低了代码的可读性和可维护性。 | 使用更具描述性的名称，例如 `calculate_total_amount_a` 或 `get_grand_total`，以明确说明函数的用途。 | structure |\n| None | ℹ️ 提示 | 函数隐式地依赖于输入 `rows` 的元素是字典且包含 `'amt'` 键这一特定结构。这是一种“隐式接口”，增加了代码的耦合度。虽然在当前简单场景下不明显，但随着系统复杂化，这可能成为维护问题。 | 可以通过定义数据模型类（如使用 `dataclasses` 或 `typing.NamedTuple`）或使用类型提示（如 `List[Dict[str, Any]]`）来使接口显式化。如果数据结构变化频繁，可以考虑引入一个抽象层或适配器来隔离变化。 | structure |\n"
+    },
+    {
+      "id": "q-005",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.5,
+        "source_traceability": 1.0,
+        "composite": 0.8,
+        "rationale": "实际报告完全覆盖了期望发现的问题（空 except 吞掉异常），并正确标注了行号4，但将严重度从期望的medium错误地评为高危，影响了准确性。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "异常处理不当：使用 'except Exception: pass' 吞没所有异常，导致错误被静默忽略，可能隐藏数据库操作失败、数据不一致或调试困难。",
+          "suggestion": "记录异常信息或重新引发异常，例如使用 'logging' 模块记录错误，或根据上下文决定是否继续执行。",
+          "code_snippet": "except Exception:\n    pass",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "错误处理不当，捕获所有异常并忽略（pass），可能导致错误被静默吞没，无日志记录，难以调试和维护。",
+          "suggestion": "至少记录异常日志，或根据业务逻辑决定是否抛出异常。例如：except Exception as e: logging.error(f'Failed to save record: {e}')。",
+          "code_snippet": "except Exception:\n    pass",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "未对输入参数 'record' 进行验证，可能导致 SQL 注入或其他安全漏洞。",
+          "suggestion": "添加输入验证，确保 'record' 符合预期格式；使用参数化查询或 ORM 来安全地执行数据库操作。",
+          "code_snippet": "db.insert(record)",
+          "worker": "security"
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "缺少注释：函数没有文档字符串或注释，不清楚其目的、参数含义和异常处理行为，不符合代码可读性最佳实践。",
+          "suggestion": "添加文档字符串，解释函数功能、参数 'record' 的作用以及异常被处理的方式，例如使用 Google Style 或 PEP 257。",
+          "code_snippet": "def save(record):\n    try:\n        db.insert(record)\n    except Exception:\n        pass",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "数据库插入操作可能使用同步阻塞I/O，且函数设计为逐个记录插入，可能导致N+1插入模式，影响高负载下的性能。",
+          "suggestion": "考虑使用批量插入操作来减少数据库调用次数，并评估使用异步I/O或非阻塞数据库驱动以提高并发性能。",
+          "code_snippet": "db.insert(record)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "硬编码具体数据库对象，缺少抽象层，违反依赖倒置原则，影响代码的可测试性和可维护性。",
+          "suggestion": "引入数据库接口或使用依赖注入，例如定义一个DataStore接口，让save函数依赖接口而不是具体实现。",
+          "code_snippet": "db.insert(record)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "异常处理中捕获所有异常并忽略，可能隐藏安全错误或导致应用不稳定。",
+          "suggestion": "记录异常信息或传播异常，避免使用 'pass' 静默忽略。",
+          "code_snippet": "except Exception: pass",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数命名 'save' 可能不够具体：如果该函数专门用于数据库操作，建议使用更明确的名称以提高代码清晰度。",
+          "suggestion": "考虑重命名为 'save_to_db' 或类似名称，以更准确地反映其功能，但当前命名在简单上下文中可接受。",
+          "code_snippet": "def save(record):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 8（高危: 3, 中危: 4, 低危: 0, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 未对输入参数 'record' 进行验证，可能导致 SQL 注入或其他安全漏洞。 | 添加输入验证，确保 'record' 符合预期格式；使用参数化查询或 ORM 来安全地执行数据库操作。 | security |\n| None | 🟡 中危 | 异常处理中捕获所有异常并忽略，可能隐藏安全错误或导致应用不稳定。 | 记录异常信息或传播异常，避免使用 'pass' 静默忽略。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 异常处理不当：使用 'except Exception: pass' 吞没所有异常，导致错误被静默忽略，可能隐藏数据库操作失败、数据不一致或调试困难。 | 记录异常信息或重新引发异常，例如使用 'logging' 模块记录错误，或根据上下文决定是否继续执行。 | quality |\n| 1 | 🟡 中危 | 缺少注释：函数没有文档字符串或注释，不清楚其目的、参数含义和异常处理行为，不符合代码可读性最佳实践。 | 添加文档字符串，解释函数功能、参数 'record' 的作用以及异常被处理的方式，例如使用 Google Style 或 PEP 257。 | quality |\n| 1 | ℹ️ 提示 | 函数命名 'save' 可能不够具体：如果该函数专门用于数据库操作，建议使用更明确的名称以提高代码清晰度。 | 考虑重命名为 'save_to_db' 或类似名称，以更准确地反映其功能，但当前命名在简单上下文中可接受。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🟡 中危 | 数据库插入操作可能使用同步阻塞I/O，且函数设计为逐个记录插入，可能导致N+1插入模式，影响高负载下的性能。 | 考虑使用批量插入操作来减少数据库调用次数，并评估使用异步I/O或非阻塞数据库驱动以提高并发性能。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 错误处理不当，捕获所有异常并忽略（pass），可能导致错误被静默吞没，无日志记录，难以调试和维护。 | 至少记录异常日志，或根据业务逻辑决定是否抛出异常。例如：except Exception as e: logging.error(f'Failed to save record: {e}')。 | structure |\n| 3 | 🟡 中危 | 硬编码具体数据库对象，缺少抽象层，违反依赖倒置原则，影响代码的可测试性和可维护性。 | 引入数据库接口或使用依赖注入，例如定义一个DataStore接口，让save函数依赖接口而不是具体实现。 | structure |\n"
+    },
+    {
+      "id": "q-006",
+      "category": "quality",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.98,
+        "source_traceability": 0.6,
+        "composite": 0.912,
+        "rationale": "实际报告完全覆盖了期望发现的‘深度嵌套if’问题（在quality和structure两个维度均有提及），并额外发现了死代码、输入校验等多个正确的问题，因此completeness为1.00。报告中绝大部分技术描述正确，仅将‘dead code’（逻辑冗余）标记为‘高危’（🔴）而非更常见的‘低/中危’或‘信息’级别，与通常的质量严重度分级有轻微偏差，因此accuracy略低于1.00。报告为多数问题指定了‘None’行号或模糊的描述，只有部分标注了具体行号（如line 1, line 8），降低了问题定位的精确性，因此source_traceability较低。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 8,
+          "description": "Dead code: The branch returning 'five' is unreachable because the condition x % 2 == 0 is false for odd numbers like 5, so x != 5 is never evaluated when x is 5.",
+          "suggestion": "Remove the dead branch or restructure the logic to handle the x == 5 case explicitly if it is intended.",
+          "code_snippet": "if x != 5: return 'small-even' else: return 'five'",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数包含4层嵌套的if语句，嵌套深度超过PEP8建议的3层，降低了代码的可读性和维护性。",
+          "suggestion": "重构代码以减少嵌套，例如使用提前返回或字典映射来简化条件逻辑。",
+          "code_snippet": "if x > 0:\n    if x < 10:\n        if x % 2 == 0:\n            if x != 5:",
+          "worker": "quality"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "缺少输入校验，函数假设参数x是数字类型（如int或float），但未进行验证，可能导致运行时类型错误或未定义行为。",
+          "suggestion": "添加类型检查，例如使用isinstance(x, (int, float))确保x为数字，或使用try-except块捕获异常并处理。",
+          "code_snippet": "def classify(x):",
+          "worker": "security"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "No input validation or error handling: The function assumes x is a numeric type, but non-numeric input (e.g., string) will cause a TypeError.",
+          "suggestion": "Add type checking or use a try-except block to handle non-numeric inputs gracefully.",
+          "code_snippet": "def classify(x):",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少文档字符串，没有说明其用途、参数或返回值。",
+          "suggestion": "添加文档字符串，例如：\"\"\"Classify a number based on its value and return a category string.\"\"\"",
+          "code_snippet": "def classify(x):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "参数名`x`不够描述性，可能影响代码的可读性。",
+          "suggestion": "将参数名改为更具描述性的名称，如`number`或`value`。",
+          "code_snippet": "def classify(x):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "High nesting depth with multiple if-else layers reduces code readability and maintainability.",
+          "suggestion": "Refactor to use early returns or flatten the condition hierarchy for clarity.",
+          "code_snippet": "if x > 0:\n    if x < 10:\n        if x % 2 == 0:\n            if x != 5:\n                return 'small-even'\n            else:\n                return 'five'\n        else:\n            return 'odd'\n    else:\n        return 'big'\nelse:\n    return 'neg'",
+          "worker": "structure"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "函数逻辑可以通过提前返回或条件表达式来简化，减少嵌套层级。",
+          "suggestion": "考虑使用早期返回或字典映射来替代嵌套if语句，提高代码清晰度。",
+          "code_snippet": "def classify(x):\n    if x > 0:\n        if x < 10:\n            if x % 2 == 0:\n                if x != 5:\n                    return 'small-even'\n                else:\n                    return 'five'\n            else:\n                return 'odd'\n        else:\n            return 'big'\n    else:\n        return 'neg'",
+          "worker": "quality"
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 8（高危: 1, 中危: 3, 低危: 3, 提示: 1）\n- **审查维度**: quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 缺少输入校验，函数假设参数x是数字类型（如int或float），但未进行验证，可能导致运行时类型错误或未定义行为。 | 添加类型检查，例如使用isinstance(x, (int, float))确保x为数字，或使用try-except块捕获异常并处理。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 函数包含4层嵌套的if语句，嵌套深度超过PEP8建议的3层，降低了代码的可读性和维护性。 | 重构代码以减少嵌套，例如使用提前返回或字典映射来简化条件逻辑。 | quality |\n| 1 | 🟢 低危 | 函数缺少文档字符串，没有说明其用途、参数或返回值。 | 添加文档字符串，例如：\"\"\"Classify a number based on its value and return a category string.\"\"\" | quality |\n| 1 | 🟢 低危 | 参数名`x`不够描述性，可能影响代码的可读性。 | 将参数名改为更具描述性的名称，如`number`或`value`。 | quality |\n| None | ℹ️ 提示 | 函数逻辑可以通过提前返回或条件表达式来简化，减少嵌套层级。 | 考虑使用早期返回或字典映射来替代嵌套if语句，提高代码清晰度。 | quality |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 8 | 🔴 高危 | Dead code: The branch returning 'five' is unreachable because the condition x % 2 == 0 is false for odd numbers like 5, so x != 5 is never evaluated when x is 5. | Remove the dead branch or restructure the logic to handle the x == 5 case explicitly if it is intended. | structure |\n| None | 🟡 中危 | No input validation or error handling: The function assumes x is a numeric type, but non-numeric input (e.g., string) will cause a TypeError. | Add type checking or use a try-except block to handle non-numeric inputs gracefully. | structure |\n| None | 🟢 低危 | High nesting depth with multiple if-else layers reduces code readability and maintainability. | Refactor to use early returns or flatten the condition hierarchy for clarity. | structure |\n"
+    },
+    {
+      "id": "q-007",
+      "category": "quality",
+      "language": "javascript",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.8,
+        "source_traceability": 1.0,
+        "composite": 0.92,
+        "rationale": "实际报告完全覆盖了期望发现的问题（变量和函数命名不清晰），但严重度评估不准确（中危 vs 低危），来源标注清晰且一致。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名 'f' 不具有描述性，不清楚其功能，不符合命名规范。",
+          "suggestion": "重命名为有意义的名称，如 'calculateResult' 或根据实际功能命名。",
+          "code_snippet": "function f(a,b)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "变量名 'a', 'b', 'x1', 'y2', 'tmp' 不清晰，缺乏描述性，不符合命名规范。",
+          "suggestion": "重命名变量为更具描述性的名称，例如 'input1', 'input2', 'sum', 'doubledSum', 'result'。",
+          "code_snippet": "var x1=a+b; var y2=x1*2; var tmp=y2/3;",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "使用 'var' 关键字声明变量，可能导致变量提升和作用域问题，不符合现代JavaScript风格。",
+          "suggestion": "使用 'let' 或 'const' 替代 'var'，根据变量是否需要重新赋值选择。",
+          "code_snippet": "var x1=a+b; var y2=x1*2; var tmp=y2/3;",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数和变量缺少必要的注释，降低了代码的可理解性和维护性。",
+          "suggestion": "添加注释说明函数的作用、参数含义和返回值。",
+          "code_snippet": "function f(a,b){ ... }",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "多个变量声明在同一行，不符合代码格式一致性，降低可读性。",
+          "suggestion": "将每个变量声明放在单独的行上，并使用一致的缩进。",
+          "code_snippet": "var x1=a+b; var y2=x1*2; var tmp=y2/3;",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数体压缩在单一行，可读性差，不符合常见代码风格指南。",
+          "suggestion": "将函数体格式化为多行，使用大括号和适当的缩进，例如每条语句一行。",
+          "code_snippet": "function f(a,b){ var x1=a+b; var y2=x1*2; var tmp=y2/3; return tmp; }",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少错误处理机制，当输入参数a或b不是数字时，可能导致NaN结果或运行时错误。",
+          "suggestion": "添加输入验证，例如使用typeof检查或try-catch块来处理无效输入。",
+          "code_snippet": "function f(a,b){ var x1=a+b; var y2=x1*2; var tmp=y2/3; return tmp; }",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数使用多个中间变量进行简单算术运算，虽然不构成严重性能瓶颈，但可以优化以减少变量分配和提高代码简洁性。",
+          "suggestion": "将计算合并为单个表达式：return (a + b) * 2 / 3;",
+          "code_snippet": "var x1=a+b; var y2=x1*2; var tmp=y2/3; return tmp;",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: javascript\n- **问题总数**: 8（高危: 0, 中危: 3, 低危: 4, 提示: 1）\n- **审查维度**: performance, quality, structure\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 函数名 'f' 不具有描述性，不清楚其功能，不符合命名规范。 | 重命名为有意义的名称，如 'calculateResult' 或根据实际功能命名。 | quality |\n| 1 | 🟡 中危 | 变量名 'a', 'b', 'x1', 'y2', 'tmp' 不清晰，缺乏描述性，不符合命名规范。 | 重命名变量为更具描述性的名称，例如 'input1', 'input2', 'sum', 'doubledSum', 'result'。 | quality |\n| 1 | 🟡 中危 | 使用 'var' 关键字声明变量，可能导致变量提升和作用域问题，不符合现代JavaScript风格。 | 使用 'let' 或 'const' 替代 'var'，根据变量是否需要重新赋值选择。 | quality |\n| 1 | 🟢 低危 | 函数和变量缺少必要的注释，降低了代码的可理解性和维护性。 | 添加注释说明函数的作用、参数含义和返回值。 | quality |\n| 1 | 🟢 低危 | 多个变量声明在同一行，不符合代码格式一致性，降低可读性。 | 将每个变量声明放在单独的行上，并使用一致的缩进。 | quality |\n| 1 | 🟢 低危 | 函数体压缩在单一行，可读性差，不符合常见代码风格指南。 | 将函数体格式化为多行，使用大括号和适当的缩进，例如每条语句一行。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | ℹ️ 提示 | 函数使用多个中间变量进行简单算术运算，虽然不构成严重性能瓶颈，但可以优化以减少变量分配和提高代码简洁性。 | 将计算合并为单个表达式：return (a + b) * 2 / 3; | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟢 低危 | 函数缺少错误处理机制，当输入参数a或b不是数字时，可能导致NaN结果或运行时错误。 | 添加输入验证，例如使用typeof检查或try-catch块来处理无效输入。 | structure |\n"
+    },
+    {
+      "id": "p-001",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 1.0,
+        "composite": 1.0,
+        "rationale": "实际报告完全覆盖了期望发现的N+1查询性能问题，严重度、描述和建议均准确匹配，行号标注清晰，无漏报或错误。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "N+1 查询模式：在循环中为每个用户执行单独的数据库查询，导致多次阻塞I/O操作，显著增加延迟和数据库负载。",
+          "suggestion": "重构为单个查询以获取所有订单。例如，收集用户ID列表，然后使用IN子句或JOIN执行一次查询：user_ids = [u.id for u in users]; orders = db.query('SELECT * FROM orders WHERE uid IN (:ids)', ids=user_ids)。同时，使用参数化查询以避免SQL注入风险。",
+          "code_snippet": "for u in users:\n    orders = db.query(f'SELECT * FROM orders WHERE uid={u.id}')\n    result.extend(orders)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "SQL查询使用f-string直接嵌入用户输入，存在SQL注入风险，违反安全编码规范。",
+          "suggestion": "使用参数化查询以防止SQL注入，例如：db.query('SELECT * FROM orders WHERE uid=%s', (u.id,)) 或使用ORM的相应方法。",
+          "code_snippet": "orders = db.query(f'SELECT * FROM orders WHERE uid={u.id}')",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "SQL 注入漏洞：直接使用 f-string 拼接用户输入到 SQL 查询中，可能被恶意利用执行任意 SQL 命令。",
+          "suggestion": "使用参数化查询或预编译语句来防止 SQL 注入。例如，使用 db.query('SELECT * FROM orders WHERE uid=%s', (u.id,)) 或类似方法。",
+          "code_snippet": "orders = db.query(f'SELECT * FROM orders WHERE uid={u.id}')",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "SQL注入风险：直接使用f-string构建SQL查询，可能允许恶意输入绕过安全措施。",
+          "suggestion": "使用参数化查询，例如 db.query('SELECT * FROM orders WHERE uid = ?', (u.id,))，或采用ORM框架。",
+          "code_snippet": "orders = db.query(f'SELECT * FROM orders WHERE uid={u.id}')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "错误处理缺失：数据库查询可能抛出异常（如连接错误、查询失败），但未被捕获或处理，可能导致程序崩溃。",
+          "suggestion": "添加try-except块来捕获异常，记录日志或返回空列表，集中错误处理策略。",
+          "code_snippet": "def get_orders(users): ...",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少文档字符串，不符合PEP8规范中推荐的代码文档化要求。",
+          "suggestion": "添加简短的文档字符串描述函数功能，例如：\"\"\"根据用户列表获取订单列表。\"\"\"",
+          "code_snippet": "def get_orders(users):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "缺少抽象层：直接依赖具体数据库对象'db'，违反依赖倒置原则，使代码难以测试和维护。",
+          "suggestion": "通过函数参数传递数据库抽象接口或使用依赖注入，以支持不同数据库实现。",
+          "code_snippet": "db.query(...)",
+          "worker": "structure"
+        },
+        {
+          "severity": "info",
+          "line": 3,
+          "description": "循环变量'u'命名过于简短，可能降低代码可读性，不符合清晰命名惯例。",
+          "suggestion": "将变量'u'重命名为'user'或其他更具体的名称，以提高代码可读性。",
+          "code_snippet": "for u in users:",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 8（高危: 4, 中危: 1, 低危: 2, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | SQL 注入漏洞：直接使用 f-string 拼接用户输入到 SQL 查询中，可能被恶意利用执行任意 SQL 命令。 | 使用参数化查询或预编译语句来防止 SQL 注入。例如，使用 db.query('SELECT * FROM orders WHERE uid=%s', (u.id,)) 或类似方法。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | SQL查询使用f-string直接嵌入用户输入，存在SQL注入风险，违反安全编码规范。 | 使用参数化查询以防止SQL注入，例如：db.query('SELECT * FROM orders WHERE uid=%s', (u.id,)) 或使用ORM的相应方法。 | quality |\n| 1 | 🟢 低危 | 函数缺少文档字符串，不符合PEP8规范中推荐的代码文档化要求。 | 添加简短的文档字符串描述函数功能，例如：\"\"\"根据用户列表获取订单列表。\"\"\" | quality |\n| 3 | ℹ️ 提示 | 循环变量'u'命名过于简短，可能降低代码可读性，不符合清晰命名惯例。 | 将变量'u'重命名为'user'或其他更具体的名称，以提高代码可读性。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | N+1 查询模式：在循环中为每个用户执行单独的数据库查询，导致多次阻塞I/O操作，显著增加延迟和数据库负载。 | 重构为单个查询以获取所有订单。例如，收集用户ID列表，然后使用IN子句或JOIN执行一次查询：user_ids = [u.id for u in users]; orders = db.query('SELECT * FROM orders WHERE uid IN (:ids)', ids=user_ids)。同时，使用参数化查询以避免SQL注入风险。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | SQL注入风险：直接使用f-string构建SQL查询，可能允许恶意输入绕过安全措施。 | 使用参数化查询，例如 db.query('SELECT * FROM orders WHERE uid = ?', (u.id,))，或采用ORM框架。 | structure |\n| None | 🟡 中危 | 错误处理缺失：数据库查询可能抛出异常（如连接错误、查询失败），但未被捕获或处理，可能导致程序崩溃。 | 添加try-except块来捕获异常，记录日志或返回空列表，集中错误处理策略。 | structure |\n| None | 🟢 低危 | 缺少抽象层：直接依赖具体数据库对象'db'，违反依赖倒置原则，使代码难以测试和维护。 | 通过函数参数传递数据库抽象接口或使用依赖注入，以支持不同数据库实现。 | structure |\n"
+    },
+    {
+      "id": "p-002",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.75,
+        "source_traceability": 0.7,
+        "composite": 0.84,
+        "rationale": "实际报告完整覆盖了期望发现的性能问题（全表加载），但相关条目中行号缺失和严重度/类别不匹配（如高危/结构）影响准确性，且来源行号标注不完整（部分为None）。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "Function loads all rows from a potentially large table into memory, risking memory overflow and performance issues.",
+          "suggestion": "Implement pagination, use a cursor for streaming, or limit the data loaded. Ensure proper memory management or consider if loading all is necessary.",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "同步数据库查询阻塞I/O，如果用于异步上下文会导致事件循环阻塞和性能下降",
+          "suggestion": "使用异步数据库驱动（如asyncpg）或通过asyncio.to_thread包装同步调用以避免阻塞",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "performance"
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数没有处理可能的数据库查询异常，影响程序健壮性",
+          "suggestion": "添加异常处理（如try-except块）来捕获和处理数据库错误，避免程序崩溃",
+          "code_snippet": "    rows = db.query('SELECT * FROM huge_table')",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "No error handling for database query exceptions, which could lead to unhandled errors and poor robustness.",
+          "suggestion": "Add try-except blocks to catch and handle database-related exceptions, such as connection errors or query failures.",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "Hardcoded SQL query and table name without abstraction layer, making the code inflexible, hard to maintain, and violating dependency inversion principle.",
+          "suggestion": "Use a data access object (DAO) pattern or ORM to abstract database operations. Define interfaces or classes for database interactions.",
+          "code_snippet": "db.query('SELECT * FROM huge_table')",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "一次性加载整个大表到内存，可能消耗大量资源并导致内存溢出",
+          "suggestion": "实现分页查询、流式处理或使用生成器逐行返回数据，以减少内存占用",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "performance"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "查询返回所有行可能消耗大量内存，对于大表可能导致性能问题或内存溢出。",
+          "suggestion": "考虑添加分页或限制返回的行数，例如使用LIMIT子句。",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "security"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少文档字符串，不符合PEP8规范",
+          "suggestion": "添加文档字符串描述函数功能、参数和返回值，例如：\"\"\"加载huge_table中的所有行。\"\"\"",
+          "code_snippet": "def load_all():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 3,
+          "description": "Redundant list comprehension; returning rows directly would be more efficient and concise if rows is already an iterable or list.",
+          "suggestion": "Simplify by returning rows directly: return rows.",
+          "code_snippet": "return [r for r in rows]",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "不必要的列表拷贝：使用列表推导式创建新列表，若rows已是列表则增加内存开销",
+          "suggestion": "直接返回rows（如果已是列表）或使用list(rows)以确保类型，避免冗余拷贝",
+          "code_snippet": "return [r for r in rows]",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "使用SELECT *可能返回不必要的数据，并可能在表结构变化时导致问题。",
+          "suggestion": "明确指定需要的列名。",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": 2,
+          "description": "使用SELECT *可能加载不必要的数据，不是最佳实践",
+          "suggestion": "指定具体列名以优化性能和可维护性，例如：db.query('SELECT column1, column2 FROM huge_table')",
+          "code_snippet": "    rows = db.query('SELECT * FROM huge_table')",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "使用字符串直接拼接SQL查询，虽然当前安全，但不符合最佳实践。",
+          "suggestion": "使用参数化查询或ORM来防止潜在的SQL注入风险。",
+          "code_snippet": "rows = db.query('SELECT * FROM huge_table')",
+          "worker": "security"
+        }
+      ],
+      "prf": {
+        "precision": 0.0769,
+        "recall": 1.0,
+        "f1": 0.1429,
+        "tp": 1,
+        "fp": 12,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 13（高危: 2, 中危: 5, 低危: 4, 提示: 2）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 查询返回所有行可能消耗大量内存，对于大表可能导致性能问题或内存溢出。 | 考虑添加分页或限制返回的行数，例如使用LIMIT子句。 | security |\n| None | 🟢 低危 | 使用SELECT *可能返回不必要的数据，并可能在表结构变化时导致问题。 | 明确指定需要的列名。 | security |\n| None | ℹ️ 提示 | 使用字符串直接拼接SQL查询，虽然当前安全，但不符合最佳实践。 | 使用参数化查询或ORM来防止潜在的SQL注入风险。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🟡 中危 | 函数没有处理可能的数据库查询异常，影响程序健壮性 | 添加异常处理（如try-except块）来捕获和处理数据库错误，避免程序崩溃 | quality |\n| 1 | 🟢 低危 | 函数缺少文档字符串，不符合PEP8规范 | 添加文档字符串描述函数功能、参数和返回值，例如：\"\"\"加载huge_table中的所有行。\"\"\" | quality |\n| 2 | ℹ️ 提示 | 使用SELECT *可能加载不必要的数据，不是最佳实践 | 指定具体列名以优化性能和可维护性，例如：db.query('SELECT column1, column2 FROM huge_table') | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 同步数据库查询阻塞I/O，如果用于异步上下文会导致事件循环阻塞和性能下降 | 使用异步数据库驱动（如asyncpg）或通过asyncio.to_thread包装同步调用以避免阻塞 | performance |\n| None | 🟡 中危 | 一次性加载整个大表到内存，可能消耗大量资源并导致内存溢出 | 实现分页查询、流式处理或使用生成器逐行返回数据，以减少内存占用 | performance |\n| None | 🟢 低危 | 不必要的列表拷贝：使用列表推导式创建新列表，若rows已是列表则增加内存开销 | 直接返回rows（如果已是列表）或使用list(rows)以确保类型，避免冗余拷贝 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | Function loads all rows from a potentially large table into memory, risking memory overflow and performance issues. | Implement pagination, use a cursor for streaming, or limit the data loaded. Ensure proper memory management or consider if loading all is necessary. | structure |\n| 2 | 🟡 中危 | No error handling for database query exceptions, which could lead to unhandled errors and poor robustness. | Add try-except blocks to catch and handle database-related exceptions, such as connection errors or query failures. | structure |\n| 2 | 🟡 中危 | Hardcoded SQL query and table name without abstraction layer, making the code inflexible, hard to maintain, and violating dependency inversion principle. | Use a data access object (DAO) pattern or ORM to abstract database operations. Define interfaces or classes for database interactions. | structure |\n| 3 | 🟢 低危 | Redundant list comprehension; returning rows directly would be more efficient and concise if rows is already an iterable or list. | Simplify by returning rows directly: return rows. | structure |\n"
+    },
+    {
+      "id": "p-003",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.5,
+        "source_traceability": 1.0,
+        "composite": 0.8,
+        "rationale": "实际报告覆盖了期望的性能问题并给出了正确建议，但严重度（高危 vs 中危）和行号（4 vs 3）与期望发现不匹配，且标注了详细来源便于追溯。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "字符串拼接在循环中使用'+'运算符，每次操作都创建新字符串对象，时间复杂度O(n²)，导致性能瓶颈和内存浪费。",
+          "suggestion": "使用字符串的'join'方法：例如，def build(n): return ''.join(str(i) for i in range(n))，避免中间字符串拷贝。",
+          "code_snippet": "s += str(i)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名 'build' 不具描述性，未反映其具体功能",
+          "suggestion": "重命名为更具描述性的名称，如 'build_number_string' 或 'concatenate_numbers'",
+          "code_snippet": "def build(n):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数缺少文档字符串（docstring），未描述其功能、参数和返回值",
+          "suggestion": "添加文档字符串，例如：'构建一个由0到n-1的数字连接而成的字符串，参数n为整数，返回字符串'",
+          "code_snippet": "def build(n):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "在循环中使用字符串连接（s += str(i)）效率低下，因为字符串是不可变的，每次连接都会创建新对象，导致性能问题，尤其当 n 较大时。",
+          "suggestion": "使用列表收集字符串，然后使用 ''.join() 方法一次性连接，以提高性能和可读性。",
+          "code_snippet": "s += str(i)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "函数缺少输入验证，假设 n 为正整数，但未处理非整数、负数或其他无效输入，可能导致运行时错误或意外行为。",
+          "suggestion": "添加输入验证，例如检查 n 是否为整数且大于 0，并在必要时抛出 ValueError。",
+          "code_snippet": "def build(n):",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 2,
+          "description": "变量名 's' 不具描述性，可能影响代码可读性",
+          "suggestion": "使用更具描述性的名称，如 'result'、'number_string' 或 'output'",
+          "code_snippet": "s = ''",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数未处理输入验证，如确保n为非负整数，可能导致意外行为",
+          "suggestion": "添加输入验证或类型检查，例如使用if语句或类型提示",
+          "code_snippet": "def build(n):",
+          "worker": "quality"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数 build 缺少输入校验，参数 n 没有验证为非负整数，可能导致意外行为或错误（如非整数输入引发 TypeError，或极大值导致内存问题）。",
+          "suggestion": "添加输入校验，例如检查 isinstance(n, int) 和 n >= 0，或处理异常。",
+          "code_snippet": "def build(n):\n    s = ''\n    for i in range(n):\n        s += str(i)\n    return s",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数名 'build' 不够描述性，可能降低代码的可读性和维护性，尤其是在大型代码库中。",
+          "suggestion": "重命名为更具描述性的名称，如 'build_number_string' 或 'generate_concatenated_numbers'，以明确函数目的。",
+          "code_snippet": "def build(n):",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 9,
+        "fn": 1
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 9（高危: 1, 中危: 3, 低危: 4, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟢 低危 | 函数 build 缺少输入校验，参数 n 没有验证为非负整数，可能导致意外行为或错误（如非整数输入引发 TypeError，或极大值导致内存问题）。 | 添加输入校验，例如检查 isinstance(n, int) 和 n >= 0，或处理异常。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 函数名 'build' 不具描述性，未反映其具体功能 | 重命名为更具描述性的名称，如 'build_number_string' 或 'concatenate_numbers' | quality |\n| 1 | 🟡 中危 | 函数缺少文档字符串（docstring），未描述其功能、参数和返回值 | 添加文档字符串，例如：'构建一个由0到n-1的数字连接而成的字符串，参数n为整数，返回字符串' | quality |\n| 2 | 🟢 低危 | 变量名 's' 不具描述性，可能影响代码可读性 | 使用更具描述性的名称，如 'result'、'number_string' 或 'output' | quality |\n| None | 🟢 低危 | 函数未处理输入验证，如确保n为非负整数，可能导致意外行为 | 添加输入验证或类型检查，例如使用if语句或类型提示 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 字符串拼接在循环中使用'+'运算符，每次操作都创建新字符串对象，时间复杂度O(n²)，导致性能瓶颈和内存浪费。 | 使用字符串的'join'方法：例如，def build(n): return ''.join(str(i) for i in range(n))，避免中间字符串拷贝。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🟡 中危 | 在循环中使用字符串连接（s += str(i)）效率低下，因为字符串是不可变的，每次连接都会创建新对象，导致性能问题，尤其当 n 较大时。 | 使用列表收集字符串，然后使用 ''.join() 方法一次性连接，以提高性能和可读性。 | structure |\n| 1 | 🟢 低危 | 函数缺少输入验证，假设 n 为正整数，但未处理非整数、负数或其他无效输入，可能导致运行时错误或意外行为。 | 添加输入验证，例如检查 n 是否为整数且大于 0，并在必要时抛出 ValueError。 | structure |\n| 1 | ℹ️ 提示 | 函数名 'build' 不够描述性，可能降低代码的可读性和维护性，尤其是在大型代码库中。 | 重命名为更具描述性的名称，如 'build_number_string' 或 'generate_concatenated_numbers'，以明确函数目的。 | structure |\n"
+    },
+    {
+      "id": "p-004",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.8,
+        "source_traceability": 0.9,
+        "composite": 0.9,
+        "rationale": "实际报告完全覆盖了期望发现的问题，但将其严重度从medium提升到high，并在分类上混淆performance与quality，导致准确性受损；来源标注基本正确，行号在多数条目中匹配，但存在不一致之处。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "在循环内重复调用 max(items)，导致 O(n²) 时间复杂度，性能瓶颈。",
+          "suggestion": "将最大值计算移到循环外，只计算一次以减少重复操作。",
+          "code_snippet": "for x in items: mx = max(items)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "函数缺乏错误处理，可能引发ValueError（当items为空时）或ZeroDivisionError（当max(items)为0时），且没有集中策略处理异常情况。",
+          "suggestion": "添加输入验证和异常处理，例如检查列表是否为空、元素是否为数字，并处理最大值为0的情况；或使用try-except块捕获异常。",
+          "code_snippet": "def norm(items):\n    out = []\n    for x in items:\n        mx = max(items)\n        out.append(x / mx)\n    return out",
+          "worker": "structure"
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "缺少输入校验：函数 norm 未对参数 items 进行校验，可能导致异常（如空列表、非数值元素或除零错误），如果输入来自不可信源，可能引发拒绝服务攻击或信息泄露。",
+          "suggestion": "在函数开头添加输入校验，确保 items 是非空列表且元素为数值类型。例如：if not items: raise ValueError('Empty list'); if not all(isinstance(x, (int, float)) for x in items): raise ValueError('Non-numeric values')。同时，优化 max 计算以避免重复计算。",
+          "code_snippet": "def norm(items):\n    out = []\n    for x in items:\n        mx = max(items)\n        out.append(x / mx)\n    return out",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "在循环内部重复调用 'max(items)' 计算最大值，导致时间复杂度为O(n^2)，效率低下，可能被视为代码风格中的常见违规项。",
+          "suggestion": "将最大值计算移到循环前：'mx = max(items)'，然后在循环中使用 'mx'，例如：'for x in items: out.append(x / mx)'。",
+          "code_snippet": "for x in items:\n        mx = max(items)\n        out.append(x / mx)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "变量名 'mx' 是缩写，可能不够清晰，违反了Python命名惯例中使用完整单词以提高可读性的建议。",
+          "suggestion": "改为更描述性的名字，如 'max_val' 或 'max_value'，例如：'max_val = max(items)'。",
+          "code_snippet": "mx = max(items)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "在for循环中重复调用max(items)，导致不必要的性能开销，违反了DRY原则，时间复杂度为O(n^2)。",
+          "suggestion": "将mx = max(items)移到循环外部，只计算一次，以优化性能。",
+          "code_snippet": "for x in items:\n    mx = max(items)\n    out.append(x / mx)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数缺少注释或文档字符串，可能使代码意图不明确，不利于其他开发者理解。",
+          "suggestion": "添加函数文档字符串来描述功能，例如：'def norm(items):\\n    \"\"\"归一化列表，将每个元素除以最大值。\"\"\"'",
+          "code_snippet": "def norm(items):",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数名 'norm' 是缩写，可能不够描述性，尤其是在大型项目中可能引起混淆。",
+          "suggestion": "考虑使用更完整的名称，如 'normalize_items' 或 'normalize_list'，以遵循Python的清晰命名惯例。",
+          "code_snippet": "def norm(items):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "tp": 1,
+        "fp": 7,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 8（高危: 2, 中危: 4, 低危: 1, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 缺少输入校验：函数 norm 未对参数 items 进行校验，可能导致异常（如空列表、非数值元素或除零错误），如果输入来自不可信源，可能引发拒绝服务攻击或信息泄露。 | 在函数开头添加输入校验，确保 items 是非空列表且元素为数值类型。例如：if not items: raise ValueError('Empty list'); if not all(isinstance(x, (int, float)) for x in items): raise ValueError('Non-numeric values')。同时，优化 max 计算以避免重复计算。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🟡 中危 | 在循环内部重复调用 'max(items)' 计算最大值，导致时间复杂度为O(n^2)，效率低下，可能被视为代码风格中的常见违规项。 | 将最大值计算移到循环前：'mx = max(items)'，然后在循环中使用 'mx'，例如：'for x in items: out.append(x / mx)'。 | quality |\n| 4 | 🟡 中危 | 变量名 'mx' 是缩写，可能不够清晰，违反了Python命名惯例中使用完整单词以提高可读性的建议。 | 改为更描述性的名字，如 'max_val' 或 'max_value'，例如：'max_val = max(items)'。 | quality |\n| None | 🟢 低危 | 函数缺少注释或文档字符串，可能使代码意图不明确，不利于其他开发者理解。 | 添加函数文档字符串来描述功能，例如：'def norm(items):\\n    \"\"\"归一化列表，将每个元素除以最大值。\"\"\"' | quality |\n| 1 | ℹ️ 提示 | 函数名 'norm' 是缩写，可能不够描述性，尤其是在大型项目中可能引起混淆。 | 考虑使用更完整的名称，如 'normalize_items' 或 'normalize_list'，以遵循Python的清晰命名惯例。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🔴 高危 | 在循环内重复调用 max(items)，导致 O(n²) 时间复杂度，性能瓶颈。 | 将最大值计算移到循环外，只计算一次以减少重复操作。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 函数缺乏错误处理，可能引发ValueError（当items为空时）或ZeroDivisionError（当max(items)为0时），且没有集中策略处理异常情况。 | 添加输入验证和异常处理，例如检查列表是否为空、元素是否为数字，并处理最大值为0的情况；或使用try-except块捕获异常。 | structure |\n| 4 | 🟡 中危 | 在for循环中重复调用max(items)，导致不必要的性能开销，违反了DRY原则，时间复杂度为O(n^2)。 | 将mx = max(items)移到循环外部，只计算一次，以优化性能。 | structure |\n"
+    },
+    {
+      "id": "p-005",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 0.4,
+        "accuracy": 0.2,
+        "source_traceability": 1.0,
+        "composite": 0.44,
+        "rationale": "实际报告提及了line 4的性能问题，但未准确描述'锁竞争'关键点，严重度从low误判为中危，来源标注清晰。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "函数使用全局变量和'global'语句，这可能导致代码维护性和可测试性问题，违反PEP8对全局状态管理的建议。",
+          "suggestion": "避免使用全局变量；将计数器作为函数参数传递，或使用类来管理状态。",
+          "code_snippet": "global counter",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数名'inc'不够描述性，可能降低代码可读性，不符合命名规范中应使用清晰名称的要求。",
+          "suggestion": "重命名函数为更描述性的名称，如'increment_counter'或'increment'，以提高可读性。",
+          "code_snippet": "def inc():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "函数 inc() 使用循环来递增计数器 100 万次，这引入了不必要的性能开销，尤其是在该函数被频繁调用时，可能导致显著的延迟和资源浪费。",
+          "suggestion": "优化函数以直接增加计数器值，避免循环。例如，将循环替换为 'counter += 1000000'，以减少迭代开销。",
+          "code_snippet": "for _ in range(1000000):\n    counter += 1",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "使用全局变量可能导致状态管理复杂性、测试困难和并发问题，违反了封装原则。",
+          "suggestion": "重构代码以使用类封装计数器状态，避免全局变量。例如：\nclass Counter:\n    def __init__(self):\n        self.value = 0\n    def increment(self):\n        for _ in range(1000000):\n            self.value += 1\n        return self.value",
+          "code_snippet": "counter = 0\ndef inc():\n    global counter\n    for _ in range(1000000):\n        counter += 1\n    return counter",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "代码缺少必要的注释，尤其是对于函数目的和全局变量使用的说明，这可能影响代码理解。",
+          "suggestion": "添加注释解释函数的作用和为什么使用全局变量（如果适用），以提升代码可维护性。",
+          "code_snippet": "# No comments present in the code",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": 3,
+          "description": "函数依赖全局状态（通过global语句），降低了代码的可读性和模块化。",
+          "suggestion": "避免使用global，考虑通过参数传递状态或重构为面向对象设计。",
+          "code_snippet": "global counter",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2857,
+        "tp": 1,
+        "fp": 5,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 6（高危: 1, 中危: 2, 低危: 2, 提示: 1）\n- **审查维度**: performance, quality, structure\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 3 | 🔴 高危 | 函数使用全局变量和'global'语句，这可能导致代码维护性和可测试性问题，违反PEP8对全局状态管理的建议。 | 避免使用全局变量；将计数器作为函数参数传递，或使用类来管理状态。 | quality |\n| 2 | 🟡 中危 | 函数名'inc'不够描述性，可能降低代码可读性，不符合命名规范中应使用清晰名称的要求。 | 重命名函数为更描述性的名称，如'increment_counter'或'increment'，以提高可读性。 | quality |\n| None | 🟢 低危 | 代码缺少必要的注释，尤其是对于函数目的和全局变量使用的说明，这可能影响代码理解。 | 添加注释解释函数的作用和为什么使用全局变量（如果适用），以提升代码可维护性。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 4 | 🟡 中危 | 函数 inc() 使用循环来递增计数器 100 万次，这引入了不必要的性能开销，尤其是在该函数被频繁调用时，可能导致显著的延迟和资源浪费。 | 优化函数以直接增加计数器值，避免循环。例如，将循环替换为 'counter += 1000000'，以减少迭代开销。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟢 低危 | 使用全局变量可能导致状态管理复杂性、测试困难和并发问题，违反了封装原则。 | 重构代码以使用类封装计数器状态，避免全局变量。例如：\nclass Counter:\n    def __init__(self):\n        self.value = 0\n    def increment(self):\n        for _ in range(1000000):\n            self.value += 1\n        return self.value | structure |\n| 3 | ℹ️ 提示 | 函数依赖全局状态（通过global语句），降低了代码的可读性和模块化。 | 避免使用global，考虑通过参数传递状态或重构为面向对象设计。 | structure |\n"
+    },
+    {
+      "id": "p-006",
+      "category": "performance",
+      "language": "python",
+      "judgment": {
+        "completeness": 0.5,
+        "accuracy": 0.7,
+        "source_traceability": 0.5,
+        "composite": 0.58,
+        "rationale": "实际报告覆盖了性能问题但描述和严重度不匹配；报告本身正确但严重度估计过高、行号不精确；行号标注部分缺失，且性能问题行号与期望不符。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "函数名 'transform' 不够描述性，不能清晰表达其深拷贝功能，不符合命名规范。",
+          "suggestion": "将函数名改为更具体的名称，如 'deep_copy_list' 或 'copy_data_deeply'。",
+          "code_snippet": "def transform(data):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 5,
+          "description": "使用copy.deepcopy可能导致性能开销，特别是对于大型或复杂的数据结构，因为深拷贝操作是递归的且消耗CPU和内存。",
+          "suggestion": "评估是否需要深拷贝；如果允许浅拷贝，使用copy.copy或直接赋值以提升性能。如果数据结构简单，可以使用列表推导式简化代码但功能不变。",
+          "code_snippet": "out.append(copy.deepcopy(d))",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数缺少文档字符串，不符合PEP8建议，降低了代码可读性和维护性。",
+          "suggestion": "添加文档字符串描述函数的目的和参数，例如：\"\"\"深拷贝输入列表中的每个元素并返回新列表。\"\"\"",
+          "code_snippet": "def transform(data):",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "函数缺少输入验证，data参数未检查类型或可迭代性，可能导致运行时错误，如TypeError或AttributeError。",
+          "suggestion": "添加输入验证，例如使用isinstance(data, list)检查类型，或使用try-except处理异常，确保data为可迭代对象。",
+          "code_snippet": "def transform(data):\n    out = []\n    for d in data:\n        out.append(copy.deepcopy(d))\n    return out",
+          "worker": "security"
+        }
+      ],
+      "prf": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 4,
+        "fn": 1
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 4（高危: 0, 中危: 3, 低危: 0, 提示: 1）\n- **审查维度**: performance, quality, security\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | ℹ️ 提示 | 函数缺少输入验证，data参数未检查类型或可迭代性，可能导致运行时错误，如TypeError或AttributeError。 | 添加输入验证，例如使用isinstance(data, list)检查类型，或使用try-except处理异常，确保data为可迭代对象。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🟡 中危 | 函数名 'transform' 不够描述性，不能清晰表达其深拷贝功能，不符合命名规范。 | 将函数名改为更具体的名称，如 'deep_copy_list' 或 'copy_data_deeply'。 | quality |\n| None | 🟡 中危 | 函数缺少文档字符串，不符合PEP8建议，降低了代码可读性和维护性。 | 添加文档字符串描述函数的目的和参数，例如：\"\"\"深拷贝输入列表中的每个元素并返回新列表。\"\"\" | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 5 | 🟡 中危 | 使用copy.deepcopy可能导致性能开销，特别是对于大型或复杂的数据结构，因为深拷贝操作是递归的且消耗CPU和内存。 | 评估是否需要深拷贝；如果允许浅拷贝，使用copy.copy或直接赋值以提升性能。如果数据结构简单，可以使用列表推导式简化代码但功能不变。 | performance |\n\n## ⚠️ 审查警告\n\n- 函数缺少输入验证，data参数未检查类型或可迭代性，可能导致运行时错误，如TypeError或AttributeError。\n"
+    },
+    {
+      "id": "st-001",
+      "category": "structure",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.95,
+        "source_traceability": 1.0,
+        "composite": 0.98,
+        "rationale": "实际报告完全覆盖了期望发现的上帝函数问题，并准确标注了行号；其他审查问题基于代码片段合理推断，无明显错误，但部分推测（如SQL注入）依赖假设，准确性略减。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "函数'handle_everything'承担了过多职责（如用户查询、订单查询、支付、邮件、日志、缓存、指标和渲染），违反了单一职责原则，是一个上帝函数。",
+          "suggestion": "将函数拆分为多个专用函数或类，每个处理一个具体职责，例如：创建'UserService'处理用户查询、'PaymentService'处理支付等，然后通过组合或编排调用这些函数。",
+          "code_snippet": "def handle_everything(req):",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "潜在SQL注入风险：db.query调用可能使用字符串拼接构建SQL查询，未使用参数化查询。",
+          "suggestion": "确保db.query实现使用参数化查询或ORM，避免直接拼接用户输入到SQL语句中。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "支付操作'gateway.charge(order.amt)'可能抛出异常（如网络错误、支付失败），但没有错误处理，可能导致未捕获异常或数据不一致。",
+          "suggestion": "添加try-except块来捕获可能的异常，记录错误日志，并实现适当的回滚或重试逻辑。考虑使用装饰器或中间件来集中处理错误。",
+          "code_snippet": "pay = gateway.charge(order.amt)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "所有数据库查询和I/O操作（如支付、邮件、日志、缓存、指标）都是同步阻塞调用，在异步上下文中会阻塞事件循环，导致性能下降和资源浪费。",
+          "suggestion": "使用异步I/O库或asyncio.run_in_executor来包装同步调用。例如，使用asyncpg进行异步数据库查询，aiohttp用于HTTP请求，aiosmtplib用于邮件发送，以避免阻塞。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)\npay = gateway.charge(order.amt)\nemail.send(user.email, pay.receipt)\nlog.write(req)\ncache.set(req.key, order)\nmetrics.inc('orders')",
+          "worker": "performance"
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数名 'handle_everything' 过于宽泛，不描述具体功能，违反命名规范。",
+          "suggestion": "重命名为更具体的名称，如 'process_order_request'，以清晰表达函数职责。",
+          "code_snippet": "def handle_everything(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "参数 'req' 名称不清晰，不明确表示请求类型，可能影响代码可读性。",
+          "suggestion": "使用更描述性的名称，如 'request' 或 'order_request'，并考虑添加类型提示以增强清晰度。",
+          "code_snippet": "def handle_everything(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数缺少文档字符串或注释，未解释目的、参数和步骤，不利于维护和理解。",
+          "suggestion": "添加文档字符串描述函数功能、参数和返回值；在关键步骤处添加行内注释以澄清逻辑。",
+          "code_snippet": "def handle_everything(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数处理多个不相关任务（数据库查询、支付、邮件、日志等），职责过多，复杂度高，违反单一职责原则。",
+          "suggestion": "重构函数，将不同职责拆分为独立函数（如 'fetch_user_data'、'process_payment'），以降低复杂度和提高可维护性。",
+          "code_snippet": "def handle_everything(req):\n    user = db.query(req.uid)\n    order = db.query(req.oid)\n    pay = gateway.charge(order.amt)\n    email.send(user.email, pay.receipt)\n    log.write(req)\n    cache.set(req.key, order)\n    metrics.inc('orders')\n    return render(order, pay, user)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "数据库查询未利用缓存，每次请求都直接访问数据库，增加不必要的数据库负载和响应延迟。",
+          "suggestion": "在查询前检查缓存，例如：user = cache.get(f'user:{req.uid}') or db.query(req.uid)，并设置合理的缓存TTL和失效策略。",
+          "code_snippet": "user = db.query(req.uid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "数据库查询'user = db.query(req.uid)'和'order = db.query(req.oid)'可能返回None或失败，但没有检查结果或错误处理，可能导致后续操作失败。",
+          "suggestion": "在查询后添加空值检查或异常处理，例如使用if语句验证数据，或捕获数据库异常并返回适当错误响应。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 3,
+          "description": "order数据库查询同样未使用缓存，导致重复计算和数据库访问。",
+          "suggestion": "实现缓存策略，如 order = cache.get(f'order:{req.oid}') or db.query(req.oid)，并确保缓存一致性。",
+          "code_snippet": "order = db.query(req.oid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 6,
+          "description": "敏感信息日志泄露：log.write(req)可能记录整个请求对象，包括敏感信息如密码、令牌等。",
+          "suggestion": "只记录必要信息，避免记录敏感数据；或对日志内容进行脱敏处理。",
+          "code_snippet": "log.write(req)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 9,
+          "description": "XSS风险：render函数生成HTML输出，如果order、pay、user包含未转义的用户控制数据，可能导致跨站脚本攻击。",
+          "suggestion": "在渲染时对用户数据进行转义，使用安全的模板引擎或HTML编码函数。",
+          "code_snippet": "return render(order, pay, user)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "缺少输入校验：直接使用用户输入的req.uid、req.oid、req.key进行数据库查询和缓存操作，未进行校验，可能导致注入或滥用。",
+          "suggestion": "添加输入校验，确保req.uid、req.oid、req.key符合预期格式（如整数、字符串长度限制等），并使用参数化查询或白名单校验。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)\ncache.set(req.key, order)",
+          "worker": "security"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "代码中硬编码了具体类实例（如db、gateway、email、log、cache、metrics），缺少抽象层，违反了依赖倒置原则，导致高耦合和低可测试性。",
+          "suggestion": "引入接口或抽象类（如'Database'、'PaymentGateway'、'EmailService'等），并通过依赖注入将实例传递给函数或类，而不是直接引用全局对象。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)\npay = gateway.charge(order.amt)\nemail.send(user.email, pay.receipt)",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 4,
+          "description": "变量 'pay' 名称不理想，应更明确表示支付信息，遵循清晰命名惯例。",
+          "suggestion": "重命名为 'payment' 以提高可读性和一致性。",
+          "code_snippet": "    pay = gateway.charge(order.amt)",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "多个独立的I/O操作（如数据库查询、支付、邮件）顺序执行，增加了总响应时间，可能成为性能瓶颈。",
+          "suggestion": "识别独立操作并使用并发执行，例如在异步上下文中使用asyncio.gather同时执行数据库查询和支付网关调用，或使用线程池处理CPU密集型任务。",
+          "code_snippet": "user = db.query(req.uid)\norder = db.query(req.oid)\npay = gateway.charge(order.amt)",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数内操作之间缺少空行，降低代码可读性和逻辑分组清晰度。",
+          "suggestion": "在逻辑块之间添加空行，例如在支付处理后、邮件发送前，以改善格式一致性。",
+          "code_snippet": "def handle_everything(req):\n    user = db.query(req.uid)\n    order = db.query(req.oid)\n    pay = gateway.charge(order.amt)\n    email.send(user.email, pay.receipt)\n    log.write(req)\n    cache.set(req.key, order)\n    metrics.inc('orders')\n    return render(order, pay, user)",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": 6,
+          "description": "日志记录'log.write(req)'在关键操作之前执行，但如果日志记录失败，可能影响后续流程，且错误处理不一致。",
+          "suggestion": "确保日志记录的错误不会中断主流程，例如使用异步日志或在try-finally块中处理，以避免日志失败导致操作回滚。",
+          "code_snippet": "log.write(req)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0526,
+        "recall": 1.0,
+        "f1": 0.1,
+        "tp": 1,
+        "fp": 18,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 19（高危: 4, 中危: 11, 低危: 3, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 潜在SQL注入风险：db.query调用可能使用字符串拼接构建SQL查询，未使用参数化查询。 | 确保db.query实现使用参数化查询或ORM，避免直接拼接用户输入到SQL语句中。 | security |\n| 6 | 🟡 中危 | 敏感信息日志泄露：log.write(req)可能记录整个请求对象，包括敏感信息如密码、令牌等。 | 只记录必要信息，避免记录敏感数据；或对日志内容进行脱敏处理。 | security |\n| 9 | 🟡 中危 | XSS风险：render函数生成HTML输出，如果order、pay、user包含未转义的用户控制数据，可能导致跨站脚本攻击。 | 在渲染时对用户数据进行转义，使用安全的模板引擎或HTML编码函数。 | security |\n| None | 🟡 中危 | 缺少输入校验：直接使用用户输入的req.uid、req.oid、req.key进行数据库查询和缓存操作，未进行校验，可能导致注入或滥用。 | 添加输入校验，确保req.uid、req.oid、req.key符合预期格式（如整数、字符串长度限制等），并使用参数化查询或白名单校验。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 函数名 'handle_everything' 过于宽泛，不描述具体功能，违反命名规范。 | 重命名为更具体的名称，如 'process_order_request'，以清晰表达函数职责。 | quality |\n| 1 | 🟡 中危 | 参数 'req' 名称不清晰，不明确表示请求类型，可能影响代码可读性。 | 使用更描述性的名称，如 'request' 或 'order_request'，并考虑添加类型提示以增强清晰度。 | quality |\n| 1 | 🟡 中危 | 函数缺少文档字符串或注释，未解释目的、参数和步骤，不利于维护和理解。 | 添加文档字符串描述函数功能、参数和返回值；在关键步骤处添加行内注释以澄清逻辑。 | quality |\n| 1 | 🟡 中危 | 函数处理多个不相关任务（数据库查询、支付、邮件、日志等），职责过多，复杂度高，违反单一职责原则。 | 重构函数，将不同职责拆分为独立函数（如 'fetch_user_data'、'process_payment'），以降低复杂度和提高可维护性。 | quality |\n| 4 | 🟢 低危 | 变量 'pay' 名称不理想，应更明确表示支付信息，遵循清晰命名惯例。 | 重命名为 'payment' 以提高可读性和一致性。 | quality |\n| None | 🟢 低危 | 函数内操作之间缺少空行，降低代码可读性和逻辑分组清晰度。 | 在逻辑块之间添加空行，例如在支付处理后、邮件发送前，以改善格式一致性。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 所有数据库查询和I/O操作（如支付、邮件、日志、缓存、指标）都是同步阻塞调用，在异步上下文中会阻塞事件循环，导致性能下降和资源浪费。 | 使用异步I/O库或asyncio.run_in_executor来包装同步调用。例如，使用asyncpg进行异步数据库查询，aiohttp用于HTTP请求，aiosmtplib用于邮件发送，以避免阻塞。 | performance |\n| 2 | 🟡 中危 | 数据库查询未利用缓存，每次请求都直接访问数据库，增加不必要的数据库负载和响应延迟。 | 在查询前检查缓存，例如：user = cache.get(f'user:{req.uid}') or db.query(req.uid)，并设置合理的缓存TTL和失效策略。 | performance |\n| 3 | 🟡 中危 | order数据库查询同样未使用缓存，导致重复计算和数据库访问。 | 实现缓存策略，如 order = cache.get(f'order:{req.oid}') or db.query(req.oid)，并确保缓存一致性。 | performance |\n| None | 🟢 低危 | 多个独立的I/O操作（如数据库查询、支付、邮件）顺序执行，增加了总响应时间，可能成为性能瓶颈。 | 识别独立操作并使用并发执行，例如在异步上下文中使用asyncio.gather同时执行数据库查询和支付网关调用，或使用线程池处理CPU密集型任务。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | 函数'handle_everything'承担了过多职责（如用户查询、订单查询、支付、邮件、日志、缓存、指标和渲染），违反了单一职责原则，是一个上帝函数。 | 将函数拆分为多个专用函数或类，每个处理一个具体职责，例如：创建'UserService'处理用户查询、'PaymentService'处理支付等，然后通过组合或编排调用这些函数。 | structure |\n| 4 | 🔴 高危 | 支付操作'gateway.charge(order.amt)'可能抛出异常（如网络错误、支付失败），但没有错误处理，可能导致未捕获异常或数据不一致。 | 添加try-except块来捕获可能的异常，记录错误日志，并实现适当的回滚或重试逻辑。考虑使用装饰器或中间件来集中处理错误。 | structure |\n| 2 | 🟡 中危 | 数据库查询'user = db.query(req.uid)'和'order = db.query(req.oid)'可能返回None或失败，但没有检查结果或错误处理，可能导致后续操作失败。 | 在查询后添加空值检查或异常处理，例如使用if语句验证数据，或捕获数据库异常并返回适当错误响应。 | structure |\n| None | 🟡 中危 | 代码中硬编码了具体类实例（如db、gateway、email、log、cache、metrics），缺少抽象层，违反了依赖倒置原则，导致高耦合和低可测试性。 | 引入接口或抽象类（如'Database'、'PaymentGateway'、'EmailService'等），并通过依赖注入将实例传递给函数或类，而不是直接引用全局对象。 | structure |\n| 6 | ℹ️ 提示 | 日志记录'log.write(req)'在关键操作之前执行，但如果日志记录失败，可能影响后续流程，且错误处理不一致。 | 确保日志记录的错误不会中断主流程，例如使用异步日志或在try-finally块中处理，以避免日志失败导致操作回滚。 | structure |\n"
+    },
+    {
+      "id": "st-002",
+      "category": "structure",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.8,
+        "source_traceability": 1.0,
+        "composite": 0.92,
+        "rationale": "实际报告完全覆盖了期望发现（单一职责问题），但将严重度从期望的medium错误标记为high，准确性受损；报告中行号标注清晰，便于追溯。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": 1,
+          "description": "函数user_api承担了数据库查询、邮件发送、HTML渲染、日志记录和缓存更新等多个不相关的职责，违反了单一职责原则，成为上帝函数。",
+          "suggestion": "将每个操作分离到独立的函数或类中（例如create separate functions for db_query, send_email, render_html, write_log, update_cache），并在user_api中组合调用，以提高模块化和可维护性。",
+          "code_snippet": "def user_api(req):\n    db.query(req.uid)\n    send_email(req.uid)\n    render_html(req.uid)\n    write_log(req.uid)\n    update_cache(req.uid)",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "数据库查询是阻塞I/O操作，可能限制并发性能和增加响应延迟。",
+          "suggestion": "使用异步数据库驱动（如asyncpg、aiomysql）或将查询放入后台任务队列。",
+          "code_snippet": "db.query(req.uid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 2,
+          "description": "Potential SQL injection if req.uid is directly concatenated into SQL queries without parameterization.",
+          "suggestion": "Use parameterized queries or an ORM to prevent SQL injection. For example, db.query('SELECT * FROM users WHERE uid = ?', (req.uid,)).",
+          "code_snippet": "db.query(req.uid)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 3,
+          "description": "发送电子邮件是阻塞网络I/O，显著增加响应时间，尤其在低带宽或高延迟网络中。",
+          "suggestion": "采用异步邮件发送（如使用asyncio或Celery）或将任务异步化。",
+          "code_snippet": "send_email(req.uid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 4,
+          "description": "Potential XSS vulnerability if req.uid is rendered in HTML without proper escaping.",
+          "suggestion": "Ensure that user input is properly escaped before rendering in HTML. Use templating engines that auto-escape (e.g., Jinja2 with auto-escaping) or manually escape the data.",
+          "code_snippet": "render_html(req.uid)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 5,
+          "description": "写入日志涉及阻塞文件或网络I/O，频繁调用时可能成为性能瓶颈。",
+          "suggestion": "使用异步日志记录（如aiofiles或logging的异步处理器）或缓冲批量写入。",
+          "code_snippet": "write_log(req.uid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": 6,
+          "description": "更新缓存通常涉及阻塞网络I/O（如Redis），阻塞主线程并降低吞吐量。",
+          "suggestion": "使用异步缓存客户端（如aioredis）或将缓存更新异步化。",
+          "code_snippet": "update_cache(req.uid)",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "函数中所有操作（如db.query, send_email等）都没有错误处理机制，缺乏异常捕获，可能导致未处理的异常影响程序稳定性。",
+          "suggestion": "为每个操作添加try-except块来捕获异常，并实现统一的错误处理策略，如日志记录、回滚或重试机制。",
+          "code_snippet": "db.query(req.uid)\n    send_email(req.uid)\n    render_html(req.uid)\n    write_log(req.uid)\n    update_cache(req.uid)",
+          "worker": "structure"
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "参数名 'req' 是缩写，可能不清晰，影响代码可读性。",
+          "suggestion": "将参数名改为更清晰的名称，如 'request'。",
+          "code_snippet": "def user_api(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数缺少文档字符串，未说明其功能、参数和返回值，不符合最佳实践。",
+          "suggestion": "添加函数文档字符串，例如：\"\"\"Process user API requests.\"\"\"。",
+          "code_snippet": "def user_api(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 5,
+          "description": "Sensitive information may be leaked in logs if req.uid contains sensitive data (e.g., user ID, email).",
+          "suggestion": "Avoid logging sensitive data. If necessary, mask or anonymize data before logging (e.g., log only hashed or truncated values).",
+          "code_snippet": "write_log(req.uid)",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "No input validation for req.uid, which may come from user input, leading to various vulnerabilities.",
+          "suggestion": "Validate and sanitize all user inputs (e.g., check type, length, format) before using them in database queries, emails, HTML rendering, etc.",
+          "code_snippet": "def user_api(req):",
+          "worker": "security"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数直接依赖于具体实现（如db.query和send_email），缺少抽象层（如接口或依赖注入），导致高耦合和低可测试性。",
+          "suggestion": "引入依赖注入或定义接口，例如创建Database和EmailService抽象类，并通过参数传入，以实现松耦合和易测试的代码。",
+          "code_snippet": "db.query(req.uid)\n    send_email(req.uid)",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 2,
+          "description": "属性名 'uid' 是缩写，可能不明确，建议使用更描述性的名称以提高可读性。",
+          "suggestion": "确保 'req.uid' 代表用户ID，或考虑在函数中定义更清晰的变量名，如 'user_id'。",
+          "code_snippet": "req.uid",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数缺少类型提示，虽然不是强制要求，但添加类型提示可以提高代码可维护性和IDE支持。",
+          "suggestion": "添加类型提示，例如：def user_api(req: Request) -> None:，需导入相关类型。",
+          "code_snippet": "def user_api(req):",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        }
+      ],
+      "prf": {
+        "precision": 0.0667,
+        "recall": 1.0,
+        "f1": 0.125,
+        "tp": 1,
+        "fp": 14,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 15（高危: 8, 中危: 5, 低危: 1, 提示: 1）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | Potential SQL injection if req.uid is directly concatenated into SQL queries without parameterization. | Use parameterized queries or an ORM to prevent SQL injection. For example, db.query('SELECT * FROM users WHERE uid = ?', (req.uid,)). | security |\n| 4 | 🔴 高危 | Potential XSS vulnerability if req.uid is rendered in HTML without proper escaping. | Ensure that user input is properly escaped before rendering in HTML. Use templating engines that auto-escape (e.g., Jinja2 with auto-escaping) or manually escape the data. | security |\n| 5 | 🟡 中危 | Sensitive information may be leaked in logs if req.uid contains sensitive data (e.g., user ID, email). | Avoid logging sensitive data. If necessary, mask or anonymize data before logging (e.g., log only hashed or truncated values). | security |\n| None | 🟡 中危 | No input validation for req.uid, which may come from user input, leading to various vulnerabilities. | Validate and sanitize all user inputs (e.g., check type, length, format) before using them in database queries, emails, HTML rendering, etc. | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 参数名 'req' 是缩写，可能不清晰，影响代码可读性。 | 将参数名改为更清晰的名称，如 'request'。 | quality |\n| 1 | 🟡 中危 | 函数缺少文档字符串，未说明其功能、参数和返回值，不符合最佳实践。 | 添加函数文档字符串，例如：\"\"\"Process user API requests.\"\"\"。 | quality |\n| 2 | 🟢 低危 | 属性名 'uid' 是缩写，可能不明确，建议使用更描述性的名称以提高可读性。 | 确保 'req.uid' 代表用户ID，或考虑在函数中定义更清晰的变量名，如 'user_id'。 | quality |\n| 1 | ℹ️ 提示 | 函数缺少类型提示，虽然不是强制要求，但添加类型提示可以提高代码可维护性和IDE支持。 | 添加类型提示，例如：def user_api(req: Request) -> None:，需导入相关类型。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🔴 高危 | 数据库查询是阻塞I/O操作，可能限制并发性能和增加响应延迟。 | 使用异步数据库驱动（如asyncpg、aiomysql）或将查询放入后台任务队列。 | performance |\n| 3 | 🔴 高危 | 发送电子邮件是阻塞网络I/O，显著增加响应时间，尤其在低带宽或高延迟网络中。 | 采用异步邮件发送（如使用asyncio或Celery）或将任务异步化。 | performance |\n| 5 | 🔴 高危 | 写入日志涉及阻塞文件或网络I/O，频繁调用时可能成为性能瓶颈。 | 使用异步日志记录（如aiofiles或logging的异步处理器）或缓冲批量写入。 | performance |\n| 6 | 🔴 高危 | 更新缓存通常涉及阻塞网络I/O（如Redis），阻塞主线程并降低吞吐量。 | 使用异步缓存客户端（如aioredis）或将缓存更新异步化。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🔴 高危 | 函数user_api承担了数据库查询、邮件发送、HTML渲染、日志记录和缓存更新等多个不相关的职责，违反了单一职责原则，成为上帝函数。 | 将每个操作分离到独立的函数或类中（例如create separate functions for db_query, send_email, render_html, write_log, update_cache），并在user_api中组合调用，以提高模块化和可维护性。 | structure |\n| None | 🔴 高危 | 函数中所有操作（如db.query, send_email等）都没有错误处理机制，缺乏异常捕获，可能导致未处理的异常影响程序稳定性。 | 为每个操作添加try-except块来捕获异常，并实现统一的错误处理策略，如日志记录、回滚或重试机制。 | structure |\n| None | 🟡 中危 | 函数直接依赖于具体实现（如db.query和send_email），缺少抽象层（如接口或依赖注入），导致高耦合和低可测试性。 | 引入依赖注入或定义接口，例如创建Database和EmailService抽象类，并通过参数传入，以实现松耦合和易测试的代码。 | structure |\n"
+    },
+    {
+      "id": "st-003",
+      "category": "structure",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 1.0,
+        "source_traceability": 1.0,
+        "composite": 1.0,
+        "rationale": "实际报告完全覆盖并准确识别了期望发现的核心问题（依赖全局可变状态CONFIG导致的测试与并发挑战），并给出了具体的行号（第1行）与详尽的改进建议。报告虽提及更多维度的问题，但核心事实无误，无幻觉或严重度错误。"
+      },
+      "findings": [
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "直接使用全局字典CONFIG存储状态，缺少抽象层和封装，导致代码耦合度高，难以测试和维护，且可能引发并发或状态管理问题。",
+          "suggestion": "将配置状态封装到一个单独的类中（如ConfigManager），提供访问和修改方法，使用依赖注入或单例模式，避免直接操作全局变量。",
+          "code_snippet": "CONFIG = {}",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 6,
+          "description": "在worker()函数中，对CONFIG['count']的更新操作不是原子的，在多线程环境下可能导致数据竞争和计数错误。",
+          "suggestion": "使用锁确保原子性，例如：在函数外部定义 lock = threading.Lock()，在worker中：if CONFIG.get('ready'): with lock: CONFIG['count'] = CONFIG.get('count', 0) + 1。或者使用原子操作库如queue.Queue。",
+          "code_snippet": "CONFIG['count'] = CONFIG.get('count', 0) + 1",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "使用全局字典CONFIG来维护状态，可能在多线程或多模块环境中导致竞态条件和状态不一致，属于不良的代码结构。",
+          "suggestion": "将CONFIG封装在类中，或使用线程锁（如threading.Lock）来保护对全局变量的访问。考虑使用更安全的状态管理机制，如依赖注入或上下文管理。",
+          "code_snippet": "CONFIG = {}",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": 1,
+          "description": "PEP8建议在顶级定义之间有两个空行，但代码中定义之间没有空行。",
+          "suggestion": "在CONFIG = {}和def init()之间添加两个空行，同样在def init()和def worker()之间添加两个空行。",
+          "code_snippet": "CONFIG = {}\\ndef init():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 2,
+          "description": "函数init缺少文档字符串，不解释其作用和目的。",
+          "suggestion": "为init函数添加文档字符串，例如：\"初始化配置字典，设置ready为True。\"",
+          "code_snippet": "def init():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 5,
+          "description": "函数worker缺少文档字符串，不解释其作用和目的。",
+          "suggestion": "为worker函数添加文档字符串，例如：\"工作函数，如果配置就绪则递增计数器。\"",
+          "code_snippet": "def worker():",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": 7,
+          "description": "在worker函数中，缺乏集中的错误处理策略，代码假设CONFIG始终是有效字典且键存在，可能导致KeyError或AttributeError异常。",
+          "suggestion": "添加类型检查或使用try-except块处理异常，确保CONFIG在运行时有效，或将错误处理逻辑集中管理。",
+          "code_snippet": "CONFIG['count'] = CONFIG.get('count', 0) + 1",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "代码缺少必要的注释和文档字符串，降低可读性和可维护性。",
+          "suggestion": "为代码添加注释，解释全局变量CONFIG的用途，并为每个函数添加文档字符串。",
+          "code_snippet": "整个代码片段",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "全局变量CONFIG使用全大写命名，但它是可变的，可能不符合常量命名惯例，容易误导。",
+          "suggestion": "考虑将CONFIG重命名为config（小写），或添加注释说明其为可变配置。",
+          "code_snippet": "CONFIG = {}",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "代码使用全局变量CONFIG进行状态管理，可能导致代码耦合性强和难以测试。",
+          "suggestion": "考虑将配置作为参数传递给函数，或使用类来封装状态，以提高模块化和可测试性。",
+          "code_snippet": "整个代码",
+          "worker": "quality"
+        }
+      ],
+      "prf": {
+        "precision": 0.1,
+        "recall": 1.0,
+        "f1": 0.1818,
+        "tp": 1,
+        "fp": 9,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 10（高危: 0, 中危: 3, 低危: 5, 提示: 2）\n- **审查维度**: performance, quality, structure\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟢 低危 | PEP8建议在顶级定义之间有两个空行，但代码中定义之间没有空行。 | 在CONFIG = {}和def init()之间添加两个空行，同样在def init()和def worker()之间添加两个空行。 | quality |\n| 2 | 🟢 低危 | 函数init缺少文档字符串，不解释其作用和目的。 | 为init函数添加文档字符串，例如：\"初始化配置字典，设置ready为True。\" | quality |\n| 5 | 🟢 低危 | 函数worker缺少文档字符串，不解释其作用和目的。 | 为worker函数添加文档字符串，例如：\"工作函数，如果配置就绪则递增计数器。\" | quality |\n| None | 🟢 低危 | 代码缺少必要的注释和文档字符串，降低可读性和可维护性。 | 为代码添加注释，解释全局变量CONFIG的用途，并为每个函数添加文档字符串。 | quality |\n| 1 | ℹ️ 提示 | 全局变量CONFIG使用全大写命名，但它是可变的，可能不符合常量命名惯例，容易误导。 | 考虑将CONFIG重命名为config（小写），或添加注释说明其为可变配置。 | quality |\n| None | ℹ️ 提示 | 代码使用全局变量CONFIG进行状态管理，可能导致代码耦合性强和难以测试。 | 考虑将配置作为参数传递给函数，或使用类来封装状态，以提高模块化和可测试性。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 6 | 🟡 中危 | 在worker()函数中，对CONFIG['count']的更新操作不是原子的，在多线程环境下可能导致数据竞争和计数错误。 | 使用锁确保原子性，例如：在函数外部定义 lock = threading.Lock()，在worker中：if CONFIG.get('ready'): with lock: CONFIG['count'] = CONFIG.get('count', 0) + 1。或者使用原子操作库如queue.Queue。 | performance |\n| None | 🟡 中危 | 使用全局字典CONFIG来维护状态，可能在多线程或多模块环境中导致竞态条件和状态不一致，属于不良的代码结构。 | 将CONFIG封装在类中，或使用线程锁（如threading.Lock）来保护对全局变量的访问。考虑使用更安全的状态管理机制，如依赖注入或上下文管理。 | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 1 | 🟡 中危 | 直接使用全局字典CONFIG存储状态，缺少抽象层和封装，导致代码耦合度高，难以测试和维护，且可能引发并发或状态管理问题。 | 将配置状态封装到一个单独的类中（如ConfigManager），提供访问和修改方法，使用依赖注入或单例模式，避免直接操作全局变量。 | structure |\n| 7 | 🟢 低危 | 在worker函数中，缺乏集中的错误处理策略，代码假设CONFIG始终是有效字典且键存在，可能导致KeyError或AttributeError异常。 | 添加类型检查或使用try-except块处理异常，确保CONFIG在运行时有效，或将错误处理逻辑集中管理。 | structure |\n"
+    },
+    {
+      "id": "st-004",
+      "category": "structure",
+      "language": "python",
+      "judgment": {
+        "completeness": 0.9,
+        "accuracy": 0.8,
+        "source_traceability": 0.2,
+        "composite": 0.72,
+        "rationale": "实际报告覆盖了循环依赖问题，但严重度误报为高危（期望中危），且未提供行号或代码片段，导致可追溯性不足。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": null,
+          "description": "循环依赖：模块 a 和 b 互相导入，可能导致运行时 ImportError。",
+          "suggestion": "重构以消除循环依赖，例如将共享函数提取到公共模块，或使用延迟导入（如在函数内部导入）。",
+          "code_snippet": "# a.py: from b import make_b\n# b.py: from a import make_a",
+          "worker": "structure"
+        }
+      ],
+      "prf": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 1
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 1（高危: 1, 中危: 0, 低危: 0, 提示: 0）\n- **审查维度**: structure\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 循环依赖：模块 a 和 b 互相导入，可能导致运行时 ImportError。 | 重构以消除循环依赖，例如将共享函数提取到公共模块，或使用延迟导入（如在函数内部导入）。 | structure |\n"
+    },
+    {
+      "id": "st-005",
+      "category": "structure",
+      "language": "python",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.75,
+        "source_traceability": 0.0,
+        "composite": 0.7,
+        "rationale": "实际报告发现了期望的上帝类问题，覆盖完全，但严重度评估错误（高危 vs medium），且未标注具体行号。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": null,
+          "description": "所有方法体均使用`...`（Ellipsis）作为占位符，这在Python中不是有效的语句，会导致运行时错误或无法执行。这通常用于类型提示或抽象基类，但在此上下文中是无效的代码。",
+          "suggestion": "为每个方法提供实际的函数体，或者如果这是接口定义，应使用`@abc.abstractmethod`装饰器并继承`abc.ABC`，并在方法体中抛出`NotImplementedError`。",
+          "code_snippet": "def auth(self): ...",
+          "worker": "quality"
+        },
+        {
+          "severity": "high",
+          "line": null,
+          "description": "App class violates Single Responsibility Principle by handling multiple unrelated responsibilities such as authentication, database connection, rendering, email sending, payment, logging, caching, metrics, cron, and migration, making it a God class.",
+          "suggestion": "Refactor the App class by extracting each responsibility into separate classes or modules (e.g., AuthManager, DatabaseConnector, Renderer, EmailSender, PaymentProcessor, Logger, CacheManager, MetricsCollector, CronScheduler, MigrationHandler). Use dependency injection to manage these components and promote loose coupling.",
+          "code_snippet": "class App:\n    def auth(self): ...\n    def db_connect(self): ...\n    def render(self): ...\n    def send_mail(self): ...\n    def pay(self): ...\n    def log(self): ...\n    def cache(self): ...\n    def metrics(self): ...\n    def cron(self): ...\n    def migrate(self): ...",
+          "worker": "structure"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "类和所有公共方法都缺少文档字符串（docstring）。这严重影响代码的可读性和可维护性，特别是对于`App`这样的核心类。",
+          "suggestion": "为`App`类和每个方法添加清晰的文档字符串，说明其用途、参数和返回值。",
+          "code_snippet": "class App:\n    def auth(self): ...",
+          "worker": "quality"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "该类承担了过多不相关的职责（认证、数据库、渲染、邮件、支付、日志、缓存、监控、定时任务、迁移）。这违反了单一职责原则（SRP），会导致类过于庞大、难以理解、测试和维护。",
+          "suggestion": "考虑将不同功能模块拆分为独立的类或组件，例如`AuthService`、`DatabaseService`、`Renderer`、`MailService`、`PaymentService`等。`App`类可以作为协调者或使用组合模式来管理这些服务。",
+          "code_snippet": "class App:\n    def auth(self): ...\n    def db_connect(self): ...\n    def render(self): ...\n    def send_mail(self): ...\n    def pay(self): ...\n    def log(self): ...\n    def cache(self): ...\n    def metrics(self): ...\n    def cron(self): ...\n    def migrate(self): ...",
+          "worker": "quality"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "部分方法名（如`auth`, `pay`, `log`, `cache`, `cron`, `migrate`）作为公共接口略显笼统，可能隐藏了具体实现细节，容易引起歧义。",
+          "suggestion": "考虑使用更具描述性的名称，例如`authenticate_user`、`process_payment`、`log_activity`、`get_cached_value`、`setup_cron_jobs`、`run_migration`等，以提高代码自文档性。",
+          "code_snippet": "def auth(self): ...\ndef pay(self): ...",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "类名`App`过于通用，缺乏具体语义。它未能清晰地表达这个类的核心职责或应用领域。",
+          "suggestion": "如果这是应用程序的核心控制器，考虑使用更具体的名称，例如`Application`、`CoreApplication`，或者根据领域命名，如`EcommerceApp`、`ContentManagerApp`等。",
+          "code_snippet": "class App:",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Authentication method is empty; potential risk of insecure authentication implementation.",
+          "suggestion": "Implement secure authentication using established libraries (e.g., OAuth, JWT) with input validation, CSRF protection, and brute-force prevention.",
+          "code_snippet": "def auth(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Database connection method is empty; risk of hardcoded credentials or insecure connection strings.",
+          "suggestion": "Use environment variables or secure vaults for credentials, employ parameterized queries to prevent SQL injection, and validate connection parameters.",
+          "code_snippet": "def db_connect(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Rendering method is empty; potential XSS risk if user input is not properly escaped in output.",
+          "suggestion": "Ensure output encoding/escaping for user-generated content, use template engines with auto-escaping, and validate/sanitize inputs.",
+          "code_snippet": "def render(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Mail sending method is empty; risk of leaking sensitive information in emails or insecure transmission.",
+          "suggestion": "Avoid including sensitive data in emails, use encrypted transmission (e.g., TLS), and validate recipient addresses to prevent phishing.",
+          "code_snippet": "def send_mail(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Payment method is empty; risk of insecure payment processing or data exposure.",
+          "suggestion": "Use secure payment gateways (e.g., Stripe, PayPal), comply with PCI-DSS standards, and avoid storing payment details directly.",
+          "code_snippet": "def pay(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Logging method is empty; potential for sensitive information leakage in logs.",
+          "suggestion": "Avoid logging sensitive data (e.g., passwords, tokens), implement log rotation and access controls, and use structured logging with sanitization.",
+          "code_snippet": "def log(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Caching method is empty; risk of caching sensitive data without encryption or proper invalidation.",
+          "suggestion": "Encrypt cached sensitive data, implement cache expiration and invalidation policies, and restrict cache access to authorized users.",
+          "code_snippet": "def cache(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Metrics method is empty; potential exposure of internal system metrics or performance data.",
+          "suggestion": "Limit metrics to non-sensitive data, use authentication for metrics endpoints, and avoid exposing internal details publicly.",
+          "code_snippet": "def metrics(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Cron method is empty; risk of executing unvalidated or unsafe commands.",
+          "suggestion": "Validate and sanitize all inputs for cron jobs, use secure scheduling libraries, and avoid shell injection by not using shell=True in subprocess calls.",
+          "code_snippet": "def cron(self): ...",
+          "worker": "security"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Migration method is empty; potential for insecure database migrations or data exposure.",
+          "suggestion": "Use migration frameworks with version control, test migrations in staging, and ensure data integrity and backup before changes.",
+          "code_snippet": "def migrate(self): ...",
+          "worker": "security"
+        }
+      ],
+      "prf": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "tp": 0,
+        "fp": 16,
+        "fn": 1
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: python\n- **问题总数**: 16（高危: 2, 中危: 2, 低危: 1, 提示: 11）\n- **审查维度**: quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | ℹ️ 提示 | Authentication method is empty; potential risk of insecure authentication implementation. | Implement secure authentication using established libraries (e.g., OAuth, JWT) with input validation, CSRF protection, and brute-force prevention. | security |\n| None | ℹ️ 提示 | Database connection method is empty; risk of hardcoded credentials or insecure connection strings. | Use environment variables or secure vaults for credentials, employ parameterized queries to prevent SQL injection, and validate connection parameters. | security |\n| None | ℹ️ 提示 | Rendering method is empty; potential XSS risk if user input is not properly escaped in output. | Ensure output encoding/escaping for user-generated content, use template engines with auto-escaping, and validate/sanitize inputs. | security |\n| None | ℹ️ 提示 | Mail sending method is empty; risk of leaking sensitive information in emails or insecure transmission. | Avoid including sensitive data in emails, use encrypted transmission (e.g., TLS), and validate recipient addresses to prevent phishing. | security |\n| None | ℹ️ 提示 | Payment method is empty; risk of insecure payment processing or data exposure. | Use secure payment gateways (e.g., Stripe, PayPal), comply with PCI-DSS standards, and avoid storing payment details directly. | security |\n| None | ℹ️ 提示 | Logging method is empty; potential for sensitive information leakage in logs. | Avoid logging sensitive data (e.g., passwords, tokens), implement log rotation and access controls, and use structured logging with sanitization. | security |\n| None | ℹ️ 提示 | Caching method is empty; risk of caching sensitive data without encryption or proper invalidation. | Encrypt cached sensitive data, implement cache expiration and invalidation policies, and restrict cache access to authorized users. | security |\n| None | ℹ️ 提示 | Metrics method is empty; potential exposure of internal system metrics or performance data. | Limit metrics to non-sensitive data, use authentication for metrics endpoints, and avoid exposing internal details publicly. | security |\n| None | ℹ️ 提示 | Cron method is empty; risk of executing unvalidated or unsafe commands. | Validate and sanitize all inputs for cron jobs, use secure scheduling libraries, and avoid shell injection by not using shell=True in subprocess calls. | security |\n| None | ℹ️ 提示 | Migration method is empty; potential for insecure database migrations or data exposure. | Use migration frameworks with version control, test migrations in staging, and ensure data integrity and backup before changes. | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 所有方法体均使用`...`（Ellipsis）作为占位符，这在Python中不是有效的语句，会导致运行时错误或无法执行。这通常用于类型提示或抽象基类，但在此上下文中是无效的代码。 | 为每个方法提供实际的函数体，或者如果这是接口定义，应使用`@abc.abstractmethod`装饰器并继承`abc.ABC`，并在方法体中抛出`NotImplementedError`。 | quality |\n| None | 🟡 中危 | 类和所有公共方法都缺少文档字符串（docstring）。这严重影响代码的可读性和可维护性，特别是对于`App`这样的核心类。 | 为`App`类和每个方法添加清晰的文档字符串，说明其用途、参数和返回值。 | quality |\n| None | 🟡 中危 | 该类承担了过多不相关的职责（认证、数据库、渲染、邮件、支付、日志、缓存、监控、定时任务、迁移）。这违反了单一职责原则（SRP），会导致类过于庞大、难以理解、测试和维护。 | 考虑将不同功能模块拆分为独立的类或组件，例如`AuthService`、`DatabaseService`、`Renderer`、`MailService`、`PaymentService`等。`App`类可以作为协调者或使用组合模式来管理这些服务。 | quality |\n| None | 🟢 低危 | 部分方法名（如`auth`, `pay`, `log`, `cache`, `cron`, `migrate`）作为公共接口略显笼统，可能隐藏了具体实现细节，容易引起歧义。 | 考虑使用更具描述性的名称，例如`authenticate_user`、`process_payment`、`log_activity`、`get_cached_value`、`setup_cron_jobs`、`run_migration`等，以提高代码自文档性。 | quality |\n| None | ℹ️ 提示 | 类名`App`过于通用，缺乏具体语义。它未能清晰地表达这个类的核心职责或应用领域。 | 如果这是应用程序的核心控制器，考虑使用更具体的名称，例如`Application`、`CoreApplication`，或者根据领域命名，如`EcommerceApp`、`ContentManagerApp`等。 | quality |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | App class violates Single Responsibility Principle by handling multiple unrelated responsibilities such as authentication, database connection, rendering, email sending, payment, logging, caching, metrics, cron, and migration, making it a God class. | Refactor the App class by extracting each responsibility into separate classes or modules (e.g., AuthManager, DatabaseConnector, Renderer, EmailSender, PaymentProcessor, Logger, CacheManager, MetricsCollector, CronScheduler, MigrationHandler). Use dependency injection to manage these components and promote loose coupling. | structure |\n"
+    },
+    {
+      "id": "st-006",
+      "category": "structure",
+      "language": "javascript",
+      "judgment": {
+        "completeness": 1.0,
+        "accuracy": 0.75,
+        "source_traceability": 0.2,
+        "composite": 0.74,
+        "rationale": "实际报告识别了期望发现的核心问题（模块化缺失），但严重度评估偏高（中危 vs 低危）且未提供行号，降低了准确性和来源追溯性。"
+      },
+      "findings": [
+        {
+          "severity": "high",
+          "line": null,
+          "description": "代码中没有错误处理机制。如果 fetchData、transform 等函数抛出异常，main 函数将无法处理，导致程序崩溃。",
+          "suggestion": "添加集中错误处理，例如使用 try-catch 块来捕获异常，或者在每个函数调用后检查错误并适当处理。",
+          "code_snippet": "function main(){\n  var a = fetchData();\n  var b = transform(a);\n  var c = save(b);\n  var d = notify(c);\n  var e = log(d);\n  return e;\n}",
+          "worker": "structure"
+        },
+        {
+          "severity": "medium",
+          "line": 1,
+          "description": "函数 main 负责过多的职责，包括数据获取、转换、持久化、通知和日志记录，这违反了单一职责原则。",
+          "suggestion": "将每个步骤提取到单独的函数或类中，例如创建独立的函数来处理每个任务，或使用工作流模式以提高可维护性。",
+          "code_snippet": "function main(){\n  var a = fetchData();\n  var b = transform(a);\n  var c = save(b);\n  var d = notify(c);\n  var e = log(d);\n  return e;\n}",
+          "worker": "structure",
+          "sources": [
+            "structure"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 2,
+          "description": "Potential blocking I/O in fetchData function if it performs synchronous operations like database queries or network requests, which could stall the execution flow.",
+          "suggestion": "Refactor fetchData to be asynchronous using async/await or Promises to prevent blocking, especially in Node.js or browser environments.",
+          "code_snippet": "var a = fetchData();",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 4,
+          "description": "Potential blocking I/O in save function if it involves synchronous file or database writes, leading to performance bottlenecks.",
+          "suggestion": "Convert save to an asynchronous function to avoid blocking the main thread or event loop.",
+          "code_snippet": "var c = save(b);",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": 5,
+          "description": "Potential blocking I/O in notify function if it performs synchronous network calls or message sending, causing delays.",
+          "suggestion": "Implement notify as an asynchronous operation to improve responsiveness and resource utilization.",
+          "code_snippet": "var d = notify(c);",
+          "worker": "performance",
+          "sources": [
+            "performance"
+          ]
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "变量名使用单字母，不清晰，违反命名规范，降低了代码可读性。",
+          "suggestion": "使用描述性变量名，例如'fetchedData'、'transformedData'、'savedData'等，以遵循JavaScript驼峰命名法。",
+          "code_snippet": "var a = fetchData();\nvar b = transform(a);\nvar c = save(b);\nvar d = notify(c);\nvar e = log(d);",
+          "worker": "quality"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "使用了过时的'var'声明变量，在现代JavaScript中不推荐，可能导致变量提升和块级作用域问题。",
+          "suggestion": "使用'let'或'const'代替'var'，'let'用于可变变量，'const'用于常量，以提高代码安全性和可维护性。",
+          "code_snippet": "var a = fetchData();\nvar b = transform(a);\nvar c = save(b);\nvar d = notify(c);\nvar e = log(d);",
+          "worker": "quality"
+        },
+        {
+          "severity": "medium",
+          "line": null,
+          "description": "函数 main 直接依赖于具体函数实现，而不是抽象接口。这导致紧耦合，使得代码难以替换或测试这些组件。",
+          "suggestion": "引入接口或抽象层，通过依赖注入的方式提供这些功能。例如，定义函数签名或使用依赖注入容器以支持松耦合。",
+          "code_snippet": "var a = fetchData(); var b = transform(a); var c = save(b); var d = notify(c); var e = log(d);",
+          "worker": "structure"
+        },
+        {
+          "severity": "low",
+          "line": 6,
+          "description": "日志函数 log 被调用，可能记录敏感数据导致信息泄露。",
+          "suggestion": "审查日志内容，确保敏感信息如密码、令牌等不被记录。实施输入验证和数据脱敏。",
+          "code_snippet": "var e = log(d);",
+          "worker": "security",
+          "sources": [
+            "security"
+          ]
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "Lack of error handling around function calls, which may lead to uncaught exceptions and crashes, impacting reliability.",
+          "suggestion": "Wrap function calls in try-catch blocks or use .catch() for Promises to handle errors gracefully.",
+          "code_snippet": "function main(){ var a = fetchData(); var b = transform(a); var c = save(b); var d = notify(c); var e = log(d); return e; }",
+          "worker": "performance"
+        },
+        {
+          "severity": "low",
+          "line": null,
+          "description": "函数缺少必要的注释，不利于其他开发者理解其作用和逻辑。",
+          "suggestion": "添加函数注释，说明其目的、参数（如果有）和返回值，例如使用JSDoc格式。",
+          "code_snippet": "function main(){ ... }",
+          "worker": "quality"
+        },
+        {
+          "severity": "info",
+          "line": 1,
+          "description": "函数名'main'可能过于通用，无法清晰表达其具体功能。",
+          "suggestion": "考虑使用更具体的名称，如'processData'、'executePipeline'或'runWorkflow'，以增强代码自解释性。",
+          "code_snippet": "function main(){",
+          "worker": "quality",
+          "sources": [
+            "quality"
+          ]
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "Code structure is synchronous and sequential; if functions involve I/O or heavy computation, it may not leverage concurrency or parallelism for better performance.",
+          "suggestion": "Consider using async patterns or worker threads for concurrent execution if operations are independent and time-consuming.",
+          "code_snippet": "function main(){ var a = fetchData(); var b = transform(a); var c = save(b); var d = notify(c); var e = log(d); return e; }",
+          "worker": "performance"
+        },
+        {
+          "severity": "info",
+          "line": null,
+          "description": "函数调用 fetchData、transform、save 等未定义，可能存在运行时错误或安全风险。",
+          "suggestion": "确保所有函数在实际实现中进行适当的输入校验、错误处理和安全检查，例如避免SQL注入或XSS。",
+          "code_snippet": "function main(){\n  var a = fetchData();\n  var b = transform(a);\n  var c = save(b);\n  var d = notify(c);\n  var e = log(d);\n  return e;\n}",
+          "worker": "security"
+        }
+      ],
+      "prf": {
+        "precision": 0.0714,
+        "recall": 1.0,
+        "f1": 0.1333,
+        "tp": 1,
+        "fp": 13,
+        "fn": 0
+      },
+      "report": "# 🔍 代码审查报告\n\n## 📋 摘要\n\n- **语言**: javascript\n- **问题总数**: 14（高危: 1, 中危: 7, 低危: 3, 提示: 3）\n- **审查维度**: performance, quality, security, structure\n\n## 🔒 安全审查\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 6 | 🟢 低危 | 日志函数 log 被调用，可能记录敏感数据导致信息泄露。 | 审查日志内容，确保敏感信息如密码、令牌等不被记录。实施输入验证和数据脱敏。 | security |\n| None | ℹ️ 提示 | 函数调用 fetchData、transform、save 等未定义，可能存在运行时错误或安全风险。 | 确保所有函数在实际实现中进行适当的输入校验、错误处理和安全检查，例如避免SQL注入或XSS。 | security |\n\n## ✨ 代码质量\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🟡 中危 | 变量名使用单字母，不清晰，违反命名规范，降低了代码可读性。 | 使用描述性变量名，例如'fetchedData'、'transformedData'、'savedData'等，以遵循JavaScript驼峰命名法。 | quality |\n| None | 🟡 中危 | 使用了过时的'var'声明变量，在现代JavaScript中不推荐，可能导致变量提升和块级作用域问题。 | 使用'let'或'const'代替'var'，'let'用于可变变量，'const'用于常量，以提高代码安全性和可维护性。 | quality |\n| None | 🟢 低危 | 函数缺少必要的注释，不利于其他开发者理解其作用和逻辑。 | 添加函数注释，说明其目的、参数（如果有）和返回值，例如使用JSDoc格式。 | quality |\n| 1 | ℹ️ 提示 | 函数名'main'可能过于通用，无法清晰表达其具体功能。 | 考虑使用更具体的名称，如'processData'、'executePipeline'或'runWorkflow'，以增强代码自解释性。 | quality |\n\n## ⚡ 性能\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| 2 | 🟡 中危 | Potential blocking I/O in fetchData function if it performs synchronous operations like database queries or network requests, which could stall the execution flow. | Refactor fetchData to be asynchronous using async/await or Promises to prevent blocking, especially in Node.js or browser environments. | performance |\n| 4 | 🟡 中危 | Potential blocking I/O in save function if it involves synchronous file or database writes, leading to performance bottlenecks. | Convert save to an asynchronous function to avoid blocking the main thread or event loop. | performance |\n| 5 | 🟡 中危 | Potential blocking I/O in notify function if it performs synchronous network calls or message sending, causing delays. | Implement notify as an asynchronous operation to improve responsiveness and resource utilization. | performance |\n| None | 🟢 低危 | Lack of error handling around function calls, which may lead to uncaught exceptions and crashes, impacting reliability. | Wrap function calls in try-catch blocks or use .catch() for Promises to handle errors gracefully. | performance |\n| None | ℹ️ 提示 | Code structure is synchronous and sequential; if functions involve I/O or heavy computation, it may not leverage concurrency or parallelism for better performance. | Consider using async patterns or worker threads for concurrent execution if operations are independent and time-consuming. | performance |\n\n## 🏗️ 架构\n\n| 行号 | 严重度 | 问题 | 建议 | 来源 |\n|------|--------|------|------|------|\n| None | 🔴 高危 | 代码中没有错误处理机制。如果 fetchData、transform 等函数抛出异常，main 函数将无法处理，导致程序崩溃。 | 添加集中错误处理，例如使用 try-catch 块来捕获异常，或者在每个函数调用后检查错误并适当处理。 | structure |\n| 1 | 🟡 中危 | 函数 main 负责过多的职责，包括数据获取、转换、持久化、通知和日志记录，这违反了单一职责原则。 | 将每个步骤提取到单独的函数或类中，例如创建独立的函数来处理每个任务，或使用工作流模式以提高可维护性。 | structure |\n| None | 🟡 中危 | 函数 main 直接依赖于具体函数实现，而不是抽象接口。这导致紧耦合，使得代码难以替换或测试这些组件。 | 引入接口或抽象层，通过依赖注入的方式提供这些功能。例如，定义函数签名或使用依赖注入容器以支持松耦合。 | structure |\n"
+    }
+  ],
+  "tokens": {
+    "prompt_tokens": 46724,
+    "completion_tokens": 223901,
+    "total_tokens": 270625,
+    "call_count": 125
+  }
+}

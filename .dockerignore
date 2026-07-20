@@ -34,8 +34,9 @@ data/
 *.swo
 *~
 
-# 文档
+# 文档（但保留 docs/tasks/ 预计算评测结果，LLM 模式需要它）
 docs/
+!docs/tasks/
 
 # Node.js（如果有）
 node_modules

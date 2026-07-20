@@ -45,9 +45,9 @@ token_subset.*
 dist/
 build/
 
-# 开发文档 / 计划（非项目源码）
+# 测试 / 计划产物
 PROJECT_RULES.md
-tasks/
+*.tasks/
 
 # OS
 .DS_Store
